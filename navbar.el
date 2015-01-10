@@ -159,6 +159,8 @@ If KEY is `nil', all items are updated by their `:get' functions."
       (unless (boundp item)
 	(require item nil t))
       (setq item (symbol-value item)))
+    (when (stringp item)
+      (setq item (list :key t :cache item)))
     (let ((key (plist-get item :key))
 	  (value (copy-sequence item))
 	  (func-on (plist-get item :on))

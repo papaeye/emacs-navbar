@@ -184,6 +184,12 @@
     (navbar-initialize)
     (should (equal navbar-item-alist `((t ,@navbar-test--item))))))
 
+(ert-deftest navbar-initialize:text-item ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list '("Hello, world!"))
+    (navbar-initialize)
+    (should (equal navbar-item-alist `((t :key t :cache "Hello, world!"))))))
+
 (ert-deftest navbar-initialize:autoload ()
   (navbar-test-save-item-list
     (setq navbar-item-list '(navbarx-version))
