@@ -81,29 +81,27 @@
 (ert-deftest navbar-define-item:test ()
   (unwind-protect
       (progn
-	(navbar-define-item navbarx-foo foo nil :cache "foo")
-	(should (boundp 'navbarx-foo))
-	(should (equal navbarx-foo (list :key 'foo :cache "foo"))))
-    (makunbound 'navbarx-foo)))
+	(navbar-define-item navbarx-foo navbar-version nil :cache "foo")
+	(should (equal navbarx-foo (list :key 'navbar-version :cache "foo")))
+	(should (fboundp 'navbarx-foo-cache-put)))
+    (makunbound 'navbarx-foo)
+    (fmakunbound 'navbarx-foo-cache-put)))
 
 (ert-deftest navbar-define-mode-item:test ()
   (unwind-protect
       (progn
 	(navbar-define-mode-item
-	  navbarx-foo foo 'ignore
+	  navbarx-foo navbar-test 'ignore
 	  nil
 	  :mode-on 'func1 :mode-off 'func2)
-	(should (boundp 'navbarx-foo))
 	(should (equal navbarx-foo
-		       (list :key 'foo-mode
+		       (list :key 'navbar-test-mode
 			     :get 'ignore
 			     :on 'func1
 			     :off 'func2)))
-	(should (boundp 'navbarx-foo-key))
-	(should (eq navbarx-foo-key 'foo-mode))
 	(should (fboundp 'navbarx-foo-update)))
     (makunbound 'navbarx-foo)
-    (makunbound 'navbarx-foo-key)
+    (fmakunbound 'navbarx-foo-cache-put)
     (fmakunbound 'navbarx-foo-update)))
 
 ;;;; `navbar-item-cache-put'

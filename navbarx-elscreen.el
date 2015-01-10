@@ -65,8 +65,7 @@
 (defun navbarx-elscreen-get ()
   (when (and (not (window-minibuffer-p))
 	     (elscreen-screen-modified-p 'navbarx-elscreen-get))
-    (navbar-item-cache-put navbarx-elscreen-key
-			   (navbarx-elscreen-get1))))
+    (navbarx-elscreen-cache-put (navbarx-elscreen-get1))))
 
 (defun navbarx-elscreen-get1 ()
   (let ((screen-list (sort (elscreen-get-screen-list) '<))

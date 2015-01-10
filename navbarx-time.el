@@ -36,7 +36,7 @@
   :get #'navbarx-time-get)
 
 (defun navbarx-time-get ()
-  (navbar-item-cache-put navbarx-time-key display-time-string))
+  (navbarx-time-cache-put display-time-string))
 
 (defun navbarx-time-on ()
   (setq global-mode-string
