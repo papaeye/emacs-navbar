@@ -136,7 +136,7 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
       (insert (navbar-serialize)))))
 
 (defun navbar-update (frame &optional key)
-  "Update navbar of FRAME by updating KEY's item.
+  "Update navbar of FRAME.
 If KEY is `nil', all items are updated by their `:get' functions."
   (unless key
     (dolist (item (mapcar 'cdr navbar-item-alist))
