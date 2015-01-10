@@ -135,24 +135,23 @@ If KEY is `nil', all items are updated by their `:get' functions."
 (defun navbar-initialize ()
   "Initialize `navbar-item-alist' and mode's on/off hooks."
   (navbar-deinitialize)
-  (setq navbar-item-alist
-	(mapcar (lambda (item)
-		  (when (symbolp item)
-		    (unless (boundp item)
-		      (require item nil t))
-		    (setq item (symbol-value item)))
-		  (let ((key (plist-get item :key))
-			(value (copy-sequence item))
-			(func-on (plist-get item :on))
-			(func-off (plist-get item :off)))
-		    (when func-on
-		      (add-hook (navbar--mode-on-hook key) func-on)
-		      (when (symbol-value key)
-			(funcall func-on)))
-		    (when func-off
-		      (add-hook (navbar--mode-off-hook key) func-off))
-		    (cons key value)))
-		navbar-item-list)))
+  (setq navbar-item-alist nil)
+  (dolist (item (nreverse navbar-item-list))
+    (when (symbolp item)
+      (unless (boundp item)
+	(require item nil t))
+      (setq item (symbol-value item)))
+    (let ((key (plist-get item :key))
+	  (value (copy-sequence item))
+	  (func-on (plist-get item :on))
+	  (func-off (plist-get item :off)))
+      (push (cons key value) navbar-item-alist)
+      (when func-on
+	(add-hook (navbar--mode-on-hook key) func-on)
+	(when (symbol-value key)
+	  (funcall func-on)))
+      (when func-off
+	(add-hook (navbar--mode-off-hook key) func-off)))))
 
 (defun navbar-deinitialize ()
   "Clean up `navbar-item-alist' and mode's on/off hooks."

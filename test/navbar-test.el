@@ -216,19 +216,23 @@
       (setq navbar-test-mode-off-hook nil)
       (put (plist-get navbar-test--mode-item :on) 'called nil))))
 
-(ert-deftest navbar-initialize:mode-call-on-func-if-enabled ()
+(ert-deftest navbar-initialize:call-on-func ()
   (navbar-test-save-item-list
-    (setq navbar-item-list (list navbar-test--mode-item))
+    (setq navbar-item-list
+	  (list (list :key 'navbar-test-mode
+		      :on (lambda () (navbar-item-cache-put
+				      'navbar-test-mode "foo")))))
     (unwind-protect
 	(progn
 	  (navbar-test-mode 1)
 	  (navbar-initialize)
-	  ;; Call `:on' function
-	  (should (get (plist-get navbar-test--mode-item :on) 'called)))
+	  (should (string= (plist-get (cdr (assq 'navbar-test-mode
+						 navbar-item-alist))
+				      :cache)
+			   "foo")))
       (navbar-test-mode -1)
       (setq navbar-test-mode-on-hook nil)
-      (setq navbar-test-mode-off-hook nil)
-      (put (plist-get navbar-test--mode-item :on) 'called nil))))
+      (setq navbar-test-mode-off-hook nil))))
 
 (ert-deftest navbar-initialize:deinitialize ()
   (navbar-test-save-item-list
