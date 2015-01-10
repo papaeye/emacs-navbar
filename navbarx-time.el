@@ -35,7 +35,8 @@
   :mode-off #'navbarx-time-off)
 
 (defun navbarx-time-get ()
-  (navbarx-time-cache-put display-time-string))
+  (navbarx-time-cache-put
+   (substring-no-properties display-time-string)))
 
 (defun navbarx-time-on ()
   (setq global-mode-string
