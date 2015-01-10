@@ -34,14 +34,10 @@
 ;;;###autoload
 (defvar navbarx-version
   (list :key 'navbar-version
-	:cache (concat
-		(propertize
-		 "\u00bb\u00bb"
-		 'face 'navbarx-version
-		 'help-echo (concat "navbar " navbar-version))
-		(propertize
-		 " "
-		 'display '(space :width 0.2)))))
+	:cache (propertize
+		"\u00bb\u00bb"
+		'face 'navbarx-version
+		'help-echo (concat "navbar " navbar-version))))
 
 (provide 'navbarx-version)
 ;;; navbarx-version.el ends here

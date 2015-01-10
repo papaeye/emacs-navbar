@@ -104,7 +104,7 @@
   (navbar-test-save-item-list
     (setq navbar-item-list '((:key t :cache ("foo" "bar"))))
     (navbar-initialize)
-    (should (string= (navbar-serialize) "foobar"))))
+    (should (string= (navbar-serialize) "foo bar"))))
 
 (ert-deftest navbar-serialize:ignore-nil-key ()
   (navbar-test-save-item-list
@@ -112,6 +112,13 @@
 			     (:key navbar-test--nil :cache "bar")))
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo"))))
+
+(ert-deftest navbar-serialize:nest ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list '((:key t :cache (("foo" "bar")))
+			     (:key t :cache "baz")))
+    (navbar-initialize)
+    (should (string= (navbar-serialize) "foo bar baz"))))
 
 ;;;; `navbar-update'
 

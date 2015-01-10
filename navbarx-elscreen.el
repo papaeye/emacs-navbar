@@ -70,50 +70,42 @@
 		     " "
 		     'keymap navbar-base-map
 		     'display '(space :width 0.5)))
-	;; When `elscreen-tab-display-kill-screen' is `right',
-	;; two consecutive half spaces precede the screen number.
-	;; It is necessary to insert two different half space objects,
-	;; since two consecutive `half-space' display one half space.
-	(tab-separator (propertize
-			" "
-			'keymap navbar-base-map
-			'display '(space :width 0.2)))
 	(kill-screen (propertize
 		      "[\u00d7]"
 		      'keymap navbarx-elscreen--kill-screen-map
 		      'help-echo 'navbarx-elscreen-kill-screen-help)))
-    (apply 'append
-	   (mapcar
-	    (lambda (screen)
-	      (let ((screen-name (cdr (assq screen screen-to-name-alist)))
-		    (tab-face (if (= screen current-screen)
-				  'elscreen-tab-current-screen-face
-				'elscreen-tab-other-screen-face))
-		    tab-string)
-		(setq tab-string
-		      (concat
-		       (when (memq elscreen-tab-display-kill-screen '(left t))
-			 kill-screen)
-		       half-space
-		       (propertize
-			(concat
-			 (when (< screen 10)
-			   (number-to-string screen))
-			 (elscreen-status-label screen)
-			 half-space
-			 screen-name)
-			'help-echo screen-name
-			'keymap navbarx-elscreen--tab-body-map
-			'navbar-truncate t)
-		       (when (eq elscreen-tab-display-kill-screen 'right)
-			 (concat half-space kill-screen))))
-		(list
-		 (propertize tab-string
-			     'face tab-face
-			     'pointer 'hand
-			     'navbarx-elscreen-screen screen)
-		 tab-separator)))
-	    screen-list))))
+    (mapcar
+     (lambda (screen)
+       (let ((screen-name (cdr (assq screen screen-to-name-alist)))
+	     (tab-face (if (= screen current-screen)
+			   'elscreen-tab-current-screen-face
+			 'elscreen-tab-other-screen-face))
+	     tab-string)
+	 (setq tab-string
+	       (concat
+		(when (memq elscreen-tab-display-kill-screen '(left t))
+		  kill-screen)
+		half-space
+		(propertize
+		 (concat
+		  (when (< screen 10)
+		    (number-to-string screen))
+		  (elscreen-status-label screen)
+		  half-space
+		  screen-name)
+		 'help-echo screen-name
+		 'keymap navbarx-elscreen--tab-body-map
+		 'navbar-truncate t)
+		(when (eq elscreen-tab-display-kill-screen 'right)
+		  (concat half-space kill-screen))))
+	 (concat
+	  (propertize tab-string
+		      'face tab-face
+		      'pointer 'hand
+		      'navbarx-elscreen-screen screen)
+	  ;; Reset the keymap for the right item
+	  (propertize " " 'display '(space :width 0)))))
+     screen-list)))
 
 (defun navbarx-elscreen-update ()
   (when (if (symbol-value navbarx-elscreen-key)

@@ -43,6 +43,12 @@ It is necessary to run `navbar-initialize' to reflect the change of
   ;; TODO: :type
   :group 'navbar)
 
+(defcustom navbar-item-separator
+  (propertize " " 'display '(space :width 0.2))
+  "String to separate navbar items."
+  :type 'string
+  :group 'navbar)
+
 (defcustom navbar-serialize-function #'navbar-serialize
   "Function to convert `navbar-item-alist' to a string."
   :type 'function
@@ -52,6 +58,14 @@ It is necessary to run `navbar-initialize' to reflect the change of
   "Function to display serialized `navbar-item-alist' in a buffer."
   :type 'function
   :group 'navbar)
+
+;;; Utilities
+
+(defun navbar--flatten (l)
+  (cond
+   ((null l) nil)
+   ((atom l) (list l))
+   (t (append (navbar--flatten (car l)) (navbar--flatten (cdr l))))))
 
 ;;; Features
 
@@ -67,14 +81,12 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
 
 (defun navbar-serialize ()
   "Convert `navbar-item-alist' to a string."
-  (mapconcat (lambda (pair)
-	       (when (symbol-value (car pair))
-		 (let ((value (plist-get (cdr pair) :cache)))
-		   (if (listp value)
-		       (apply 'concat value)
-		     value))))
-	     navbar-item-alist
-	     nil))
+  (mapconcat 'identity
+	     (navbar--flatten
+	      (cl-loop for pair in navbar-item-alist
+		       when (symbol-value (car pair))
+		       collect (plist-get (cdr pair) :cache)))
+	     navbar-item-separator))
 
 (defun navbar-display (buffer)
   "Display serialized `navbar-item-alist' in a BUFFER."
