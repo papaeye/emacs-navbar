@@ -365,5 +365,12 @@
 		      :on (lambda () (navbar-update nil 'navbar-test-mode)))))
     (navbar-test-with-mode)))
 
+(ert-deftest navbar-mode:text-just-after-setup ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list '((:key t :cache "foo")))
+    (navbar-test-with-mode
+      (with-current-buffer (navbar-buffer)
+	(should (string= (buffer-string) "foo"))))))
+
 (provide 'navbar-test)
 ;;; navbar-test.el ends here

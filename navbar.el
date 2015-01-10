@@ -281,11 +281,13 @@ If KEY is `nil', all items are updated by their `:get' functions."
   (navbar-advices-setup)
   (add-hook 'after-make-frame-functions #'navbar-update)
   (add-hook 'after-make-frame-functions #'navbar-make-window)
-  (dolist (frame (frame-list))
-    (navbar-make-window frame)
-    (navbar-update frame)))
+  (mapc #'navbar-make-window (frame-list))
+  ;; TODO: Make `navbar-initialize' aware of frames.
+  (navbar-initialize)
+  (mapc #'navbar-update (frame-list)))
 
 (defun navbar-teardown ()
+  (navbar-deinitialize)
   (navbar-advices-teardown)
   (remove-hook 'after-make-frame-functions #'navbar-update)
   (remove-hook 'after-make-frame-functions #'navbar-make-window)
@@ -296,10 +298,7 @@ If KEY is `nil', all items are updated by their `:get' functions."
   :group 'navbar
   :global t
   (if navbar-mode
-      (progn
-	(navbar-setup)
-	(navbar-initialize))
-    (navbar-deinitialize)
+      (navbar-setup)
     (navbar-teardown)))
 
 (provide 'navbar)
