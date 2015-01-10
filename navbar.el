@@ -72,7 +72,7 @@ It is necessary to run `navbar-initialize' to reflect the change of
 (defvar navbar-item-alist nil)
 
 (defmacro navbar-define-item (item key doc &rest body)
-  (declare (indent 2) (doc-string 3))
+  (declare (indent 0) (doc-string 3))
   `(defvar ,item (list :key (quote ,key) ,@body)
      ,doc))
 

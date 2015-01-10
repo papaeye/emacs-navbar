@@ -80,8 +80,7 @@
 (ert-deftest navbar-define-item:test ()
   (unwind-protect
       (progn
-	(navbar-define-item navbarx-foo foo
-	  nil :cache "foo")
+	(navbar-define-item navbarx-foo foo nil :cache "foo")
 	(should (boundp 'navbarx-foo))
 	(should (equal navbarx-foo (list :key 'foo :cache "foo"))))
     (makunbound 'navbarx-foo)))
