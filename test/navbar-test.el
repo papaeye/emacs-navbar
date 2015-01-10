@@ -150,6 +150,12 @@
     (navbar-initialize)
     (should (equal navbar-item-alist `((t ,@navbar-test--item))))))
 
+(ert-deftest navbar-initialize:autoload ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list '(navbarx-version))
+    (navbar-initialize)
+    (should (boundp 'navbarx-version))))
+
 (ert-deftest navbar-initialize:order ()
   (navbar-test-save-item-list
     (let ((item1 '(:key t :cache "foo"))
@@ -208,12 +214,6 @@
 			    navbar-test-mode-off-hook)))
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
-
-(ert-deftest navbar-initialize:autoload ()
-  (navbar-test-save-item-list
-    (setq navbar-item-list '(navbarx-version))
-    (navbar-initialize)
-    (should (boundp 'navbarx-version))))
 
 (ert-deftest navbar-deinitialize:test ()
   (navbar-test-save-item-list
