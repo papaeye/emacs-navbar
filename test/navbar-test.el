@@ -92,32 +92,26 @@
     (setq navbar-item-alist '((foo :cache "foo")))
     (should (navbar-item-cache-put 'foo nil))))
 
-;;;; `navbar-display'
+;;;; `navbar-serialize'
 
-(ert-deftest navbar-display:string-cache ()
+(ert-deftest navbar-serialize:string-cache ()
   (navbar-test-save-item-list
     (setq navbar-item-list '((:key t :cache "foo")))
     (navbar-initialize)
-    (with-temp-buffer
-      (navbar-display (current-buffer))
-      (should (string= (buffer-string) "foo")))))
+    (should (string= (navbar-serialize) "foo"))))
 
-(ert-deftest navbar-display:list-cache ()
+(ert-deftest navbar-serialize:list-cache ()
   (navbar-test-save-item-list
     (setq navbar-item-list '((:key t :cache ("foo" "bar"))))
     (navbar-initialize)
-    (with-temp-buffer
-      (navbar-display (current-buffer))
-      (should (string= (buffer-string) "foobar")))))
+    (should (string= (navbar-serialize) "foobar"))))
 
-(ert-deftest navbar-display:ignore-nil-key ()
+(ert-deftest navbar-serialize:ignore-nil-key ()
   (navbar-test-save-item-list
     (setq navbar-item-list '((:key navbar-test--t :cache "foo")
 			     (:key navbar-test--nil :cache "bar")))
     (navbar-initialize)
-    (with-temp-buffer
-      (navbar-display (current-buffer))
-      (should (string= (buffer-string) "foo")))))
+    (should (string= (navbar-serialize) "foo"))))
 
 ;;;; `navbar-update'
 

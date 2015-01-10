@@ -41,9 +41,13 @@ It is necessary to run `navbar-initialize' to reflect the change of
   ;; TODO: :type
   :group 'navbar)
 
+(defcustom navbar-serialize-function #'navbar-serialize
+  "Function to convert `navbar-item-alist' to a string."
+  :type 'function
+  :group 'navbar)
+
 (defcustom navbar-display-function #'navbar-display
-  "Function to convert `navbar-item-alist' to a string and display it
-in a buffer."
+  "Function to display serialized `navbar-item-alist' in a buffer."
   :type 'function
   :group 'navbar)
 
@@ -59,19 +63,23 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
     (unless (equal new-value old-value)
       (plist-put item :cache new-value))))
 
+(defun navbar-serialize ()
+  "Convert `navbar-item-alist' to a string."
+  (mapconcat (lambda (pair)
+	       (when (symbol-value (car pair))
+		 (let ((value (plist-get (cdr pair) :cache)))
+		   (if (listp value)
+		       (apply 'concat value)
+		     value))))
+	     navbar-item-alist
+	     nil))
+
 (defun navbar-display (buffer)
-  "Convert `navbar-item-alist' to a string and display it in BUFFER."
+  "Display serialized `navbar-item-alist' in a BUFFER."
   (with-current-buffer buffer
     (let (deactivate-mark)
       (erase-buffer)
-      (insert (mapconcat (lambda (pair)
-			   (when (symbol-value (car pair))
-			     (let ((value (plist-get (cdr pair) :cache)))
-			       (if (listp value)
-				   (apply 'concat value)
-				 value))))
-			 navbar-item-alist
-			 nil)))))
+      (insert (navbar-serialize)))))
 
 (defun navbar-update (frame &optional key)
   "Update navbar of FRAME by updating KEY's item.
