@@ -77,7 +77,7 @@
 	(kill-screen (propertize
 		      "[\u00d7]"
 		      'keymap navbarx-elscreen--kill-screen-map
-		      'help-echo 'navbarx-elscreen-kill-screen-help)))
+		      'help-echo 'navbarx-elscreen--kill-screen-help)))
     (mapcar
      (lambda (screen)
        (let ((screen-name (cdr (assq screen screen-to-name-alist)))
