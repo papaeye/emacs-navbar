@@ -258,8 +258,8 @@ If KEY is `nil', all items are updated by their `:get' functions."
   :global t
   (if navbar-mode
       (progn
-	(navbar-initialize)
-	(navbar-setup))
+	(navbar-setup)
+	(navbar-initialize))
     (navbar-deinitialize)
     (navbar-teardown)))
 

@@ -327,5 +327,14 @@
   (should-not (and (ad-find-advice 'next-window 'around 'navbar-ignore)))
   (should-not (and (ad-find-advice 'window-list 'around 'navbar-ignore))))
 
+(ert-deftest navbar-mode:initialize-after-setup ()
+  (navbar-test-save-item-list
+    ;; Call `:on' function in `navbar-initialize'.
+    (navbar-test-mode 1)
+    (setq navbar-item-list
+	  (list (list :key 'navbar-test-mode
+		      :on (lambda () (navbar-update nil 'navbar-test-mode)))))
+    (navbar-test-with-mode)))
+
 (provide 'navbar-test)
 ;;; navbar-test.el ends here
