@@ -28,6 +28,8 @@
 
 (defconst navbar-version "0.1.0")
 
+(eval-when-compile (require 'cl-lib))
+
 ;;; Customization
 
 (defgroup navbar nil
