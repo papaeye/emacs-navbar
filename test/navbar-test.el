@@ -75,6 +75,30 @@
 
 ;;; Features
 
+;;;; navbar item API
+
+(ert-deftest navbar-define-item:test ()
+  (unwind-protect
+      (progn
+	(navbar-define-item navbarx-foo foo
+	  nil :cache "foo")
+	(should (boundp 'navbarx-foo))
+	(should (equal navbarx-foo (list :key 'foo :cache "foo"))))
+    (makunbound 'navbarx-foo)))
+
+(ert-deftest navbar-define-mode-item:test ()
+  (unwind-protect
+      (progn
+	(navbar-define-mode-item navbarx-foo foo
+	  nil :mode-on 'func1 :mode-off 'func2 :get 'func3)
+	(should (boundp 'navbarx-foo))
+	(should (equal navbarx-foo
+		       (list :key 'foo-mode
+			     :on 'func1
+			     :off 'func2
+			     :get 'func3))))
+    (makunbound 'navbarx-foo)))
+
 ;;;; `navbar-item-cache-put'
 
 (ert-deftest navbar-item-cache-put:new-value ()

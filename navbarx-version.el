@@ -32,12 +32,11 @@
   :group 'navbar)
 
 ;;;###autoload
-(defvar navbarx-version
-  (list :key 'navbar-version
-	:cache (propertize
-		"\u00bb\u00bb"
-		'face 'navbarx-version
-		'help-echo (concat "navbar " navbar-version))))
+(navbar-define-item navbarx-version navbar-version
+  nil :cache (propertize
+	      "\u00bb\u00bb"
+	      'face 'navbarx-version
+	      'help-echo (concat "navbar " navbar-version)))
 
 (provide 'navbarx-version)
 ;;; navbarx-version.el ends here

@@ -71,6 +71,28 @@ It is necessary to run `navbar-initialize' to reflect the change of
 
 (defvar navbar-item-alist nil)
 
+(defmacro navbar-define-item (item key doc &rest body)
+  (declare (indent 2) (doc-string 3))
+  `(defvar ,item (list :key (quote ,key) ,@body)
+     ,doc))
+
+(defmacro navbar-define-mode-item (item feature doc &rest body)
+  (declare (indent 2) (doc-string 3))
+  (let ((mode (intern (concat (symbol-name feature) "-mode")))
+	func-on
+	func-off
+	extra-keywords
+	keyword)
+    (while (keywordp (setq keyword (car body)))
+      (setq body (cdr body))
+      (pcase keyword
+	(`:mode-on (setq func-on (pop body)))
+	(`:mode-off (setq func-off (pop body)))
+	(_ (push keyword extra-keywords)
+	   (push (pop body) extra-keywords))))
+    `(navbar-define-item ,item ,mode
+       ,doc :on ,func-on :off ,func-off ,@(nreverse extra-keywords))))
+
 (defun navbar-item-cache-put (key new-value)
   "Put KEY's `:cache' value to NEW-VALUE.
 Return non-`nil', if NEW-VALUE is not same as existing value."
