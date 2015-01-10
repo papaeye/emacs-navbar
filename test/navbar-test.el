@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+(require 'advice)
 (require 'ert)
 (require 'navbar)
 
