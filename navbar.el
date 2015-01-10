@@ -101,6 +101,11 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
     (unless (equal new-value old-value)
       (plist-put item :cache new-value))))
 
+(defun navbar-item-cache-get (key)
+  "Get KEY's `:cache' value."
+  (plist-get (cdr (assq key navbar-item-alist))
+	     :cache))
+
 (defun navbar-serialize ()
   "Convert `navbar-item-alist' to a string."
   (mapconcat 'identity

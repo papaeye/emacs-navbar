@@ -159,11 +159,9 @@
       (save-window-excursion
 	(navbar-make-window)
 	(navbar-update (selected-frame))
-	(should (string= (plist-get (cdr (assq 'foo navbar-item-alist))
-				    :cache)
+	(should (string= (navbar-item-cache-get 'foo)
 			 "foo"))
-	(should (string= (plist-get (cdr (assq 'bar navbar-item-alist))
-				    :cache)
+	(should (string= (navbar-item-cache-get 'bar)
 			 "baz"))))))
 
 ;;;; `navbar-initialize'
@@ -226,9 +224,7 @@
 	(progn
 	  (navbar-test-mode 1)
 	  (navbar-initialize)
-	  (should (string= (plist-get (cdr (assq 'navbar-test-mode
-						 navbar-item-alist))
-				      :cache)
+	  (should (string= (navbar-item-cache-get 'navbar-test-mode)
 			   "foo")))
       (navbar-test-mode -1)
       (setq navbar-test-mode-on-hook nil)
