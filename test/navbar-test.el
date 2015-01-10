@@ -89,15 +89,22 @@
 (ert-deftest navbar-define-mode-item:test ()
   (unwind-protect
       (progn
-	(navbar-define-mode-item navbarx-foo foo
-	  nil :mode-on 'func1 :mode-off 'func2 :get 'func3)
+	(navbar-define-mode-item
+	  navbarx-foo foo 'ignore
+	  nil
+	  :mode-on 'func1 :mode-off 'func2)
 	(should (boundp 'navbarx-foo))
 	(should (equal navbarx-foo
 		       (list :key 'foo-mode
+			     :get 'ignore
 			     :on 'func1
-			     :off 'func2
-			     :get 'func3))))
-    (makunbound 'navbarx-foo)))
+			     :off 'func2)))
+	(should (boundp 'navbarx-foo-key))
+	(should (eq navbarx-foo-key 'foo-mode))
+	(should (fboundp 'navbarx-foo-update)))
+    (makunbound 'navbarx-foo)
+    (makunbound 'navbarx-foo-key)
+    (fmakunbound 'navbarx-foo-update)))
 
 ;;;; `navbar-item-cache-put'
 

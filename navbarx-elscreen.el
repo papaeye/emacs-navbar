@@ -55,13 +55,12 @@
     (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
 
 ;;;###autoload
-(navbar-define-mode-item navbarx-elscreen elscreen
+(navbar-define-mode-item
+  navbarx-elscreen elscreen #'navbarx-elscreen-get
   nil
   :mode-on #'navbarx-elscreen-on
   :mode-off #'navbarx-elscreen-off
   :get #'navbarx-elscreen-get)
-
-(defvar navbarx-elscreen-key (plist-get navbarx-elscreen :key))
 
 (defun navbarx-elscreen-get ()
   (when (and (not (window-minibuffer-p))
@@ -113,12 +112,6 @@
 	  ;; Reset the keymap for the right item
 	  (propertize " " 'display '(space :width 0)))))
      screen-list)))
-
-(defun navbarx-elscreen-update ()
-  (when (if (symbol-value navbarx-elscreen-key)
-	    (navbarx-elscreen-get)
-	  (navbar-item-cache-put navbarx-elscreen-key nil))
-    (navbar-update nil navbarx-elscreen-key)))
 
 (defun navbarx-elscreen-on ()
   (add-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update))

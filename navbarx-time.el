@@ -28,22 +28,15 @@
 (require 'navbar)
 
 ;;;###autoload
-(navbar-define-mode-item navbarx-time display-time
+(navbar-define-mode-item
+  navbarx-time display-time #'navbarx-time-get
   nil
   :mode-on #'navbarx-time-on
   :mode-off #'navbarx-time-off
   :get #'navbarx-time-get)
 
-(defvar navbarx-time-key (plist-get navbarx-time :key))
-
 (defun navbarx-time-get ()
   (navbar-item-cache-put navbarx-time-key display-time-string))
-
-(defun navbarx-time-update ()
-  (when (if (symbol-value navbarx-time-key)
-	    (navbarx-time-get)
-	  (navbar-item-cache-put navbarx-time-key nil))
-    (navbar-update nil navbarx-time-key)))
 
 (defun navbarx-time-on ()
   (setq global-mode-string
