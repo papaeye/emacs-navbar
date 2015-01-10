@@ -59,8 +59,7 @@
   navbarx-elscreen elscreen #'navbarx-elscreen-get
   nil
   :mode-on #'navbarx-elscreen-on
-  :mode-off #'navbarx-elscreen-off
-  :get #'navbarx-elscreen-get)
+  :mode-off #'navbarx-elscreen-off)
 
 (defun navbarx-elscreen-get ()
   (when (and (not (window-minibuffer-p))

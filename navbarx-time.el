@@ -32,8 +32,7 @@
   navbarx-time display-time #'navbarx-time-get
   nil
   :mode-on #'navbarx-time-on
-  :mode-off #'navbarx-time-off
-  :get #'navbarx-time-get)
+  :mode-off #'navbarx-time-off)
 
 (defun navbarx-time-get ()
   (navbarx-time-cache-put display-time-string))
