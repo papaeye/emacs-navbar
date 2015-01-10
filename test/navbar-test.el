@@ -209,6 +209,12 @@
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
 
+(ert-deftest navbar-initialize:autoload ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list '(navbarx-version))
+    (navbar-initialize)
+    (should (boundp 'navbarx-version))))
+
 (ert-deftest navbar-deinitialize:test ()
   (navbar-test-save-item-list
     (setq navbar-item-list (list navbar-test--mode-item))

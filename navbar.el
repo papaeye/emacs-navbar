@@ -102,6 +102,8 @@ If KEY is `nil', all items are updated by their `:get' functions."
   (setq navbar-item-alist
 	(mapcar (lambda (item)
 		  (when (symbolp item)
+		    (unless (boundp item)
+		      (require item nil t))
 		    (setq item (symbol-value item)))
 		  (let ((key (plist-get item :key))
 			(value (copy-sequence item))
