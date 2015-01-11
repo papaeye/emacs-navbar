@@ -73,10 +73,18 @@ It is necessary to run `navbar-initialize' to reflect the change of
 
 (defmacro navbar-define-item (item key doc &rest body)
   (declare (indent 0) (doc-string 3))
-  (let ((cache-put (intern (concat (symbol-name item) "-cache-put"))))
+  (let ((cache-put (intern (concat (symbol-name item) "-cache-put")))
+	(item-update (intern (concat (symbol-name item) "-update")))
+	(getter (plist-get body :get)))
     `(progn
        (defun ,cache-put (value)
 	 (navbar-item-cache-put ,key value))
+       ,(when getter
+	  `(defun ,item-update ()
+	     (when (if (symbol-value ,key)
+		       (funcall ,getter)
+		     (navbar-item-cache-put ,key nil))
+	       (navbar-update nil ,key))))
        (defvar ,item (list :key ,key ,@body)
 	 ,doc))))
 
@@ -97,7 +105,6 @@ It is necessary to run `navbar-initialize' to reflect the change of
 (defmacro navbar-define-mode-item (item feature getter doc &rest body)
   (declare (indent 0) (doc-string 4))
   (let ((mode (intern (concat (symbol-name feature) "-mode")))
-	(item-update (intern (concat (symbol-name item) "-update")))
 	func-on
 	func-off
 	extra-keywords
@@ -109,16 +116,10 @@ It is necessary to run `navbar-initialize' to reflect the change of
 	(`:mode-off (setq func-off (pop body)))
 	(_ (push keyword extra-keywords)
 	   (push (pop body) extra-keywords))))
-    `(progn
-       (defun ,item-update ()
-	 (when (if ,mode
-		   (funcall ,getter)
-		 (navbar-item-cache-put (quote ,mode) nil))
-	   (navbar-update nil (quote ,mode))))
-       (navbar-define-item
-	 ,item (quote ,mode) ,doc
-	 :get ,getter :on ,func-on :off ,func-off
-	 ,@(nreverse extra-keywords)))))
+    `(navbar-define-item
+       ,item (quote ,mode) ,doc
+       :get ,getter :on ,func-on :off ,func-off
+       ,@(nreverse extra-keywords))))
 
 (defun navbar-item-cache-put (key new-value)
   "Put KEY's `:cache' value to NEW-VALUE.

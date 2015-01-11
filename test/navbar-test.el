@@ -83,9 +83,22 @@
       (progn
 	(navbar-define-item navbarx-foo 'navbar-version nil :cache "foo")
 	(should (equal navbarx-foo (list :key 'navbar-version :cache "foo")))
-	(should (fboundp 'navbarx-foo-cache-put)))
+	(should (fboundp 'navbarx-foo-cache-put))
+	(should-not (fboundp 'navbarx-foo-update)))
     (makunbound 'navbarx-foo)
-    (fmakunbound 'navbarx-foo-cache-put)))
+    (fmakunbound 'navbarx-foo-cache-put)
+    (fmakunbound 'navbarx-foo-update)))
+
+(ert-deftest navbar-define-item:update-with-get ()
+  (unwind-protect
+      (progn
+	(navbar-define-item navbarx-foo 'navbar-version nil :get 'ignore)
+	(should (equal navbarx-foo (list :key 'navbar-version :get 'ignore)))
+	(should (fboundp 'navbarx-foo-cache-put))
+	(should (fboundp 'navbarx-foo-update)))
+    (makunbound 'navbarx-foo)
+    (fmakunbound 'navbarx-foo-cache-put)
+    (fmakunbound 'navbarx-foo-update)))
 
 (ert-deftest navbar-define-string-item:test ()
   (unwind-protect
@@ -94,7 +107,8 @@
 	(should (equal navbarx-foo (list :key 'navbar-version :cache "foo")))
 	(should (fboundp 'navbarx-foo-cache-put)))
     (makunbound 'navbarx-foo)
-    (fmakunbound 'navbarx-foo-cache-put)))
+    (fmakunbound 'navbarx-foo-cache-put)
+    (fmakunbound 'navbarx-foo-update)))
 
 (ert-deftest navbar-define-string-item:default-key ()
   (unwind-protect
@@ -103,7 +117,8 @@
 	(should (equal navbarx-foo (list :key t :cache "foo")))
 	(should (fboundp 'navbarx-foo-cache-put)))
     (makunbound 'navbarx-foo)
-    (fmakunbound 'navbarx-foo-cache-put)))
+    (fmakunbound 'navbarx-foo-cache-put)
+    (fmakunbound 'navbarx-foo-update)))
 
 (ert-deftest navbar-define-mode-item:test ()
   (unwind-protect
@@ -116,8 +131,7 @@
 		       (list :key 'navbar-test-mode
 			     :get 'ignore
 			     :on 'func1
-			     :off 'func2)))
-	(should (fboundp 'navbarx-foo-update)))
+			     :off 'func2))))
     (makunbound 'navbarx-foo)
     (fmakunbound 'navbarx-foo-cache-put)
     (fmakunbound 'navbarx-foo-update)))
