@@ -390,6 +390,28 @@
 	(should-not (navbar-window))
 	(should-not (window-valid-p window))))))
 
+;;; Advices
+
+(ert-deftest navbar-advice-next-window ()
+  (save-window-excursion
+    (navbar-make-window)
+    (unwind-protect
+	(progn
+	  (navbar-advices-setup)
+	  (should (eq (selected-window) (next-window))))
+      (navbar-advices-teardown)
+      (should-not (eq (selected-window) (next-window))))))
+
+(ert-deftest navbar-advice-window-list ()
+  (save-window-excursion
+    (navbar-make-window)
+    (unwind-protect
+	(progn
+	  (navbar-advices-setup)
+	  (should (equal (list (selected-window)) (window-list))))
+      (navbar-advices-teardown)
+      (should-not (equal (list (selected-window)) (window-list))))))
+
 ;;; Mode
 
 (ert-deftest navbar-mode:hooks ()
