@@ -413,7 +413,8 @@
   (should (eq (plist-get navbarx-time :off) 'navbarx-time-off)))
 
 (defvar navbarx-elscreen)
-(when (require 'navbarx-elscreen nil t)
+(when (require 'elscreen nil t)
+  (require 'navbarx-elscreen)
   (ert-deftest navbarx-elscreen:test ()
     (should (= (length navbarx-elscreen) 8))
     (should (eq (plist-get navbarx-elscreen :key) 'elscreen-mode))
