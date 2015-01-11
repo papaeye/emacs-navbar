@@ -390,6 +390,8 @@
 	(should-not (navbar-window))
 	(should-not (window-valid-p window))))))
 
+;;; Mode
+
 (ert-deftest navbar-mode:hooks ()
   (navbar-test-with-mode
     (should (memq 'navbar-update after-make-frame-functions))
@@ -417,8 +419,6 @@
 	(unwind-protect
 	    (should (window-live-p (navbar-window new-frame)))
 	  (delete-frame new-frame))))))
-
-;;; Mode
 
 (ert-deftest navbar-mode:advices ()
   (navbar-test-with-mode
