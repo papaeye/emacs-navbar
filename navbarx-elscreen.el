@@ -56,7 +56,6 @@
   (let ((screen (navbar-property-at pos 'navbarx-elscreen-screen window)))
     (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
 
-;;;###autoload
 (navbar-define-mode-item
   navbarx-elscreen elscreen #'navbarx-elscreen-get
   nil

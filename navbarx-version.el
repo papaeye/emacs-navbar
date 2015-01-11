@@ -31,7 +31,6 @@
   "Face of `navbarx-version'."
   :group 'navbar)
 
-;;;###autoload
 (navbar-define-item
   navbarx-version navbar-version
   nil

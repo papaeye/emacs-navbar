@@ -27,7 +27,6 @@
 (require 'time)
 (require 'navbar)
 
-;;;###autoload
 (navbar-define-mode-item
   navbarx-time display-time #'navbarx-time-get
   nil
