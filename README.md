@@ -1,6 +1,9 @@
 navbar.el
 =========
 
+[![Build Status](https://img.shields.io/travis/papaeye/emacs-navbar.svg?style=flat)](https://travis-ci.org/papaeye/emacs-navbar)
+[![Coverage Status](https://img.shields.io/coveralls/papaeye/emacs-navbar.svg?style=flat)](https://coveralls.io/r/papaeye/emacs-navbar?branch=master)
+
 navbar.el is a navigation bar for Emacs.
 
 navbar.el requires Emacs 24.3 or later.
