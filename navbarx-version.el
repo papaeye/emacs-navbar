@@ -31,13 +31,14 @@
   "Face of `navbarx-version'."
   :group 'navbar)
 
-(navbar-define-item
-  navbarx-version 'navbar-version
+(navbar-define-string-item
+  navbarx-version
+  (propertize
+   "\u00bb\u00bb"
+   'face 'navbarx-version
+   'help-echo (concat "navbar " navbar-version))
   nil
-  :cache (propertize
-	  "\u00bb\u00bb"
-	  'face 'navbarx-version
-	  'help-echo (concat "navbar " navbar-version)))
+  :key 'navbar-version)
 
 (provide 'navbarx-version)
 ;;; navbarx-version.el ends here

@@ -80,6 +80,20 @@ It is necessary to run `navbar-initialize' to reflect the change of
        (defvar ,item (list :key ,key ,@body)
 	 ,doc))))
 
+(defmacro navbar-define-string-item (item string doc &rest body)
+  (declare (indent 0) (doc-string 3))
+  (let ((key t)
+	extra-keywords
+	keyword)
+    (while (keywordp (setq keyword (car body)))
+      (setq body (cdr body))
+      (pcase keyword
+	(`:key (setq key (pop body)))
+	(_ (push keyword extra-keywords)
+	   (push (pop body) extra-keywords))))
+    `(navbar-define-item
+       ,item ,key ,doc :cache ,string ,@(nreverse extra-keywords))))
+
 (defmacro navbar-define-mode-item (item feature getter doc &rest body)
   (declare (indent 0) (doc-string 4))
   (let ((mode (intern (concat (symbol-name feature) "-mode")))
