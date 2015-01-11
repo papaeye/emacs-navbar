@@ -26,6 +26,5 @@ test-interactive: compile test/elscreen.elc
 .PHONY: test-all
 test-all: test test-interactive
 
-.PHONY: test/elscreen.el
 test/elscreen.el:
 	curl -s https://raw.githubusercontent.com/papaeye/elscreen/develop/elscreen.el > $@
