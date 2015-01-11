@@ -76,8 +76,8 @@ It is necessary to run `navbar-initialize' to reflect the change of
   (let ((cache-put (intern (concat (symbol-name item) "-cache-put"))))
     `(progn
        (defun ,cache-put (value)
-	 (navbar-item-cache-put (quote ,key) value))
-       (defvar ,item (list :key (quote ,key) ,@body)
+	 (navbar-item-cache-put ,key value))
+       (defvar ,item (list :key ,key ,@body)
 	 ,doc))))
 
 (defmacro navbar-define-mode-item (item feature getter doc &rest body)
@@ -102,7 +102,7 @@ It is necessary to run `navbar-initialize' to reflect the change of
 		 (navbar-item-cache-put (quote ,mode) nil))
 	   (navbar-update nil (quote ,mode))))
        (navbar-define-item
-	 ,item ,mode ,doc
+	 ,item (quote ,mode) ,doc
 	 :get ,getter :on ,func-on :off ,func-off
 	 ,@(nreverse extra-keywords)))))
 

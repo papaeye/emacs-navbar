@@ -32,7 +32,7 @@
   :group 'navbar)
 
 (navbar-define-item
-  navbarx-version navbar-version
+  navbarx-version 'navbar-version
   nil
   :cache (propertize
 	  "\u00bb\u00bb"
