@@ -378,5 +378,30 @@
       (with-current-buffer (navbar-buffer)
 	(should (string= (buffer-string) "foo"))))))
 
+;;; navbarx
+
+(require 'navbarx-version)
+(ert-deftest navbarx-version:test ()
+  (should (= (length navbarx-version) 4))
+  (should (eq (plist-get navbarx-version :key) 'navbar-version))
+  (should (string= (plist-get navbarx-version :cache) "\u00bb\u00bb")))
+
+(require 'navbarx-time)
+(ert-deftest navbarx-time:test ()
+  (should (= (length navbarx-time) 8))
+  (should (eq (plist-get navbarx-time :key) 'display-time-mode))
+  (should (eq (plist-get navbarx-time :get) 'navbarx-time-get))
+  (should (eq (plist-get navbarx-time :on) 'navbarx-time-on))
+  (should (eq (plist-get navbarx-time :off) 'navbarx-time-off)))
+
+(defvar navbarx-elscreen)
+(when (require 'navbarx-elscreen nil t)
+  (ert-deftest navbarx-elscreen:test ()
+    (should (= (length navbarx-elscreen) 8))
+    (should (eq (plist-get navbarx-elscreen :key) 'elscreen-mode))
+    (should (eq (plist-get navbarx-elscreen :get) 'navbarx-elscreen-get))
+    (should (eq (plist-get navbarx-elscreen :on) 'navbarx-elscreen-on))
+    (should (eq (plist-get navbarx-elscreen :off) 'navbarx-elscreen-off))))
+
 (provide 'navbar-test)
 ;;; navbar-test.el ends here
