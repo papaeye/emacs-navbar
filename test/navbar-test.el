@@ -60,7 +60,10 @@
   (let ((cache-put (intern (concat (symbol-name item) "-cache-put")))
 	(item-update (intern (concat (symbol-name item) "-update"))))
     `(unwind-protect
-	 (progn ,@body)
+	 (progn
+	   (setq navbar-display-function (lambda (_buffer) "displayed"))
+	   ,@body)
+       (setq navbar-display-function #'navbar-display)
        (makunbound (quote ,item))
        (fmakunbound (quote ,cache-put))
        (fmakunbound (quote ,item-update)))))
@@ -105,6 +108,42 @@
     (should (equal navbarx-foo (list :key 'navbar-version :get 'ignore)))
     (should (fboundp 'navbarx-foo-cache-put))
     (should (fboundp 'navbarx-foo-update))))
+
+(ert-deftest navbar-define-item:item-update:t--new-value--displayed ()
+  (navbar-test-with-temp-item-definition navbarx-foo
+    (navbar-test-save-item-list
+      (navbar-define-item
+	navbarx-foo 'navbar-test--t nil
+	:get (lambda () "new-value"))
+      (should (string= (navbarx-foo-update) "displayed")))))
+
+(ert-deftest navbar-define-item:item-update:t--nil--nil ()
+  (navbar-test-with-temp-item-definition navbarx-foo
+    (navbar-test-save-item-list
+      (navbar-define-item
+	navbarx-foo 'navbar-test--t nil
+	:get (lambda () nil))
+      (should-not (navbarx-foo-update)))))
+
+(ert-deftest navbar-define-item:item-update:nil--changed--displayed ()
+  (navbar-test-with-temp-item-definition navbarx-foo
+    (navbar-test-save-item-list
+      (navbar-define-item
+	navbarx-foo 'navbar-test--nil nil
+	:get 'ignore)
+      (setq navbar-item-list '(navbarx-foo))
+      (navbar-initialize)
+      ;; Make next (navbar-item-cache-put 'navbar-test--nil nil) non-`nil'.
+      (navbar-item-cache-put 'navbar-test--nil t)
+      (should (string= (navbarx-foo-update) "displayed")))))
+
+(ert-deftest navbar-define-item:item-update:nil--unchanged--nil ()
+  (navbar-test-with-temp-item-definition navbarx-foo
+    (navbar-test-save-item-list
+      (navbar-define-item
+	navbarx-foo 'navbar-test--nil nil
+	:get 'ignore)
+      (should-not (navbarx-foo-update)))))
 
 (ert-deftest navbar-define-string-item:test ()
   (navbar-test-with-temp-item-definition navbarx-foo
