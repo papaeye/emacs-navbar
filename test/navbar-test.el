@@ -394,6 +394,7 @@
 
 (ert-deftest navbar-advice-next-window ()
   (save-window-excursion
+    (delete-other-windows)
     (navbar-make-window)
     (unwind-protect
 	(progn
@@ -404,6 +405,7 @@
 
 (ert-deftest navbar-advice-window-list ()
   (save-window-excursion
+    (delete-other-windows)
     (navbar-make-window)
     (unwind-protect
 	(progn
