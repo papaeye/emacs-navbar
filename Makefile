@@ -1,27 +1,30 @@
 EMACS ?= emacs
-EMACS_TEST = $(EMACS) -Q -L . -L ./test
+EFLAGS ?= -Q -L . -L ./test
 
 ELS = navbar.el
+ELS += navbarx-elscreen.el
+ELS += navbarx-time.el
+ELS += navbarx-version.el
 ELCS = $(ELS:.el=.elc)
 
 .PHONY: compile
-compile: $(ELCS)
+compile: test/elscreen.elc $(ELCS)
 
 %.elc: %.el
-	$(EMACS) --batch -Q -f batch-byte-compile $<
+	$(EMACS) $(EFLAGS) --batch -f batch-byte-compile $<
 
 .PHONY: clean
 clean:
-	rm -f $(ELCS) test/elscreen.*
+	rm -f $(ELCS) test/elscreen.el
 
 .PHONY: test
-test: compile test/elscreen.elc
-	$(EMACS_TEST) --batch -l test/navbar-test.el -f ert-run-tests-batch-and-exit
+test: compile
+	$(EMACS) $(EFLAGS) --batch -l test/navbar-test.el -f ert-run-tests-batch-and-exit
 
 .PHONY: test-interactive
-test-interactive: compile test/elscreen.elc
-	$(EMACS_TEST) -nw -l test/navbar-test.el --eval "(ert t)"
-	$(EMACS_TEST) -l test/navbar-test.el --eval "(ert t)"
+test-interactive: compile
+	$(EMACS) $(EFLAGS) -nw -l test/navbar-test.el --eval "(ert t)"
+	$(EMACS) $(EFLAGS) -l test/navbar-test.el --eval "(ert t)"
 
 .PHONY: test-all
 test-all: test test-interactive
