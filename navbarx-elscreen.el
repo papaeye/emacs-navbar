@@ -5,6 +5,7 @@
 ;; Author: papaeye <papaeye@gmail.com>
 ;; Keywords: convenience
 ;; Version: 0.1.0
+;; Homepage: https://github.com/papaeye/emacs-navbar
 ;; Package-Requires: ((navbar "0.1.0") (elscreen "20141230"))
 
 ;; This program is free software; you can redistribute it and/or modify
