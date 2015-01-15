@@ -292,9 +292,8 @@ If KEY is `nil', all items are updated by their `:get' functions."
 
 (defun navbar-advices-teardown ()
   (dolist (func '(next-window window-list))
-    (condition-case _err
-	(ad-remove-advice func 'around 'navbar-ignore)
-      (error nil))			; Ignore already removed advices
+    ;; Ignore already removed advices
+    (ignore-errors (ad-remove-advice func 'around 'navbar-ignore))
     (ad-update func)))
 
 ;;; Minor mode
