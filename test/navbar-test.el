@@ -357,6 +357,7 @@
 	(should-not mode-line-format)
 	(should-not cursor-type)
 	(should truncate-lines)
+	(should (eq window-size-fixed 'height))
 	(should (eq (car (current-active-maps)) navbar-base-map))))))
 
 (ert-deftest navbar-buffer-create/existing-buffer ()
@@ -389,6 +390,17 @@
 	(should-not (navbar-buffer))
 	(should-not (navbar-window))
 	(should-not (window-valid-p window))))))
+
+(unless noninteractive
+  (ert-deftest navbar-test/fullheight-should-not-change-window-height ()
+    (let* ((frame (make-frame))
+	   (window (navbar-make-window frame)))
+      (unwind-protect
+	  (progn
+	    (set-frame-parameter frame 'fullscreen 'fullheight)
+	    (redisplay)
+	    (should (= (window-total-height window) 1)))
+	(delete-frame frame)))))
 
 ;;; Advices
 

@@ -241,6 +241,7 @@ If KEY is `nil', all items are updated by their `:get' functions."
 	(setq mode-line-format nil)
 	(setq cursor-type nil)
 	(setq truncate-lines t)
+	(setq window-size-fixed 'height)
 	(use-local-map navbar-base-map)))
     buffer))
 
