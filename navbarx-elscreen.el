@@ -114,10 +114,12 @@
      screen-list)))
 
 (defun navbarx-elscreen-on ()
+  (remove-hook 'elscreen-screen-update-hook 'elscreen-tab-update)
   (add-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update))
 
 (defun navbarx-elscreen-off ()
   (navbarx-elscreen-update)
+  (add-hook 'elscreen-screen-update-hook 'elscreen-tab-update)
   (remove-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update))
 
 (provide 'navbarx-elscreen)
