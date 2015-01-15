@@ -15,7 +15,11 @@ compile: test/elscreen.elc $(ELCS)
 
 .PHONY: clean
 clean:
-	rm -f $(ELCS) test/elscreen.el
+	rm -f $(ELCS)
+
+.PHONY: distclean
+distclean: clean
+	rm -f test/elscreen.el
 
 .PHONY: test
 test: compile
