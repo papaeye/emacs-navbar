@@ -224,7 +224,7 @@
 
 ;;;; `navbar-update'
 
-(ert-deftest navbar-update/nil-key ()
+(ert-deftest navbar-update/should-run-get-functions-if-key-is-nil ()
   (navbar-test-save-item-list
     (navbar-test-save-buffer-list
       (setq navbar-item-list
