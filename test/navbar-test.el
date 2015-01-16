@@ -465,19 +465,22 @@
   (should-not (and (ad-find-advice 'next-window 'around 'navbar-ignore)))
   (should-not (and (ad-find-advice 'window-list 'around 'navbar-ignore))))
 
-(ert-deftest navbar-mode/initialize-after-setup ()
+(ert-deftest navbar-mode/should-initialize-after-setup ()
   (navbar-test-save-item-list
-    ;; Call `:on' function in `navbar-initialize'.
-    (navbar-test-mode 1)
     (setq navbar-item-list
-	  (list (list :key 'navbar-test-mode
-		      :on (lambda () (navbar-update nil 'navbar-test-mode)))))
-    (navbar-test-with-mode)))
+	  (list (list :key t :cache "foo"
+		      :on (lambda () (navbar-update nil t)))))
+    (navbar-test-with-mode
+      ;; Call `:on' function by `navbar-initialize'.
+      ;; It is necessary to run `navbar-make-window' before that.
+      )))
 
-(ert-deftest navbar-mode/text-just-after-setup ()
+(ert-deftest navbar-mode/should-update-after-initialize ()
   (navbar-test-save-item-list
     (setq navbar-item-list '((:key t :cache "foo")))
     (navbar-test-with-mode
+      ;; It is necessary to `navbar-update' after `navbar-initialize'
+      ;; to display static contents.
       (with-current-buffer (navbar-buffer)
 	(should (string= (buffer-string) "foo"))))))
 
