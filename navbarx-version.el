@@ -37,7 +37,7 @@
    "\u00bb\u00bb"
    'face 'navbarx-version
    'help-echo (concat "navbar " navbar-version))
-  nil)
+  "Navbar item for `navbar-version'.")
 
 (provide 'navbarx-version)
 ;;; navbarx-version.el ends here

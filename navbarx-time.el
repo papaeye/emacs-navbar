@@ -29,7 +29,7 @@
 
 (navbar-define-mode-item
   navbarx-time display-time #'navbarx-time-get
-  nil
+  "Navbar item for `display-time-mode' support."
   :mode-on #'navbarx-time-on
   :mode-off #'navbarx-time-off)
 

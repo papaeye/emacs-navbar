@@ -59,7 +59,7 @@
 
 (navbar-define-mode-item
   navbarx-elscreen elscreen #'navbarx-elscreen-get
-  nil
+  "Navbar item for ElScreen support."
   :mode-on #'navbarx-elscreen-on
   :mode-off #'navbarx-elscreen-off)
 
