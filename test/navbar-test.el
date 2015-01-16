@@ -82,10 +82,15 @@
   (put 'navbar-test--func1 'called t))
 (defun navbar-test--func2 ())
 
-(defvar navbar-test--item '(:key t :cache "foo"))
-(defvar navbar-test--mode-item (list :key 'navbar-test-mode
-				     :on 'navbar-test--func1
-				     :off 'navbar-test--func2))
+(navbar-define-string-item
+  navbar-test--item "foo"
+  "Navbar string item for testing.")
+
+(navbar-define-mode-item
+  navbar-test--mode-item navbar-test #'ignore
+  "Navbar mode item for testing."
+  :mode-on 'navbar-test--func1
+  :mode-off 'navbar-test--func2)
 
 ;;; Features
 
