@@ -109,21 +109,28 @@ It is necessary to run `navbar-initialize' to reflect the change of
 
 (defmacro navbar-define-mode-item (item feature getter doc &rest body)
   (declare (indent 0) (doc-string 4))
-  (let ((mode (intern (concat (symbol-name feature) "-mode")))
-	func-on
-	func-off
-	extra-keywords
-	keyword)
+  (let* ((mode-name (concat (symbol-name feature) "-mode"))
+	 (mode (intern mode-name))
+	 (hook-on (intern (concat mode-name "-on-hook")))
+	 (hook-off (intern (concat mode-name "-off-hook")))
+	 func-on
+	 func-off
+	 hooks
+	 extra-keywords
+	 keyword)
     (while (keywordp (setq keyword (car body)))
       (setq body (cdr body))
       (pcase keyword
-	(`:mode-on (setq func-on (pop body)))
-	(`:mode-off (setq func-off (pop body)))
+	(`:mode-on (setq func-on (pop body))
+		   (push (list 'cons `(quote ,hook-on) func-on) hooks))
+	(`:mode-off (setq func-off (pop body))
+		    (push (list 'cons `(quote ,hook-off) func-off) hooks))
 	(_ (push keyword extra-keywords)
 	   (push (pop body) extra-keywords))))
     `(navbar-define-item
        ,item (quote ,mode) ,doc
-       :get ,getter :on ,func-on :off ,func-off
+       :get ,getter :on ,func-on
+       :hooks (list ,@(nreverse hooks))
        ,@(nreverse extra-keywords))))
 
 (defun navbar-item-cache-put (key new-value)
@@ -184,25 +191,19 @@ If KEY is `nil', all items are updated by their `:get' functions."
     (let ((key (plist-get item :key))
 	  (value (copy-sequence item))
 	  (func-on (plist-get item :on))
-	  (func-off (plist-get item :off)))
+	  (hooks (plist-get item :hooks)))
       (push (cons key value) navbar-item-alist)
-      (when func-on
-	(add-hook (navbar--mode-on-hook key) func-on)
-	(when (symbol-value key)
-	  (funcall func-on)))
-      (when func-off
-	(add-hook (navbar--mode-off-hook key) func-off)))))
+      (dolist (hook hooks)
+	(add-hook (car hook) (cdr hook)))
+      (when (and func-on (symbol-value key))
+	(funcall func-on)))))
 
 (defun navbar-deinitialize ()
   "Clean up `navbar-item-alist' and mode's on/off hooks."
   (dolist (item (mapcar 'cdr navbar-item-alist))
-    (let ((key (plist-get item :key))
-	  (func-on (plist-get item :on))
-	  (func-off (plist-get item :off)))
-      (when func-on
-	(remove-hook (navbar--mode-on-hook key) func-on))
-      (when func-off
-	(remove-hook (navbar--mode-off-hook key) func-off))))
+    (let ((hooks (plist-get item :hooks)))
+      (dolist (hook hooks)
+	(remove-hook (car hook) (cdr hook)))))
   (setq navbar-item-alist nil))
 
 ;;; GUI

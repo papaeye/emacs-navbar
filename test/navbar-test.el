@@ -79,6 +79,10 @@
   (put 'navbar-test--mode-on-func 'called t))
 (defun navbar-test--mode-off-func ())
 
+(defvar navbar-test--mode-hooks
+  (list (cons 'navbar-test-mode-on-hook 'navbar-test--mode-on-func)
+	(cons 'navbar-test-mode-off-hook 'navbar-test--mode-off-func)))
+
 (navbar-define-string-item
   navbar-test--item "foo"
   "Navbar string item for testing.")
@@ -170,7 +174,7 @@
     (should (equal navbarx-foo (list :key 'navbar-test-mode
 				     :get 'ignore
 				     :on 'navbar-test--mode-on-func
-				     :off 'navbar-test--mode-off-func)))))
+				     :hooks navbar-test--mode-hooks)))))
 
 ;;;; `navbar-item-cache-put'
 
@@ -239,7 +243,7 @@
 
 ;;;; `navbar-initialize'
 
-(ert-deftest navbar-initialize/simple ()
+(ert-deftest navbar-initialize/raw-list ()
   (navbar-test-save-item-list
     (setq navbar-item-list (list navbar-test--item))
     (navbar-initialize)
@@ -273,69 +277,64 @@
       (should (eq (car (nth 0 navbar-item-alist)) 't))
       (should (eq (car (nth 1 navbar-item-alist)) 'bar)))))
 
-(ert-deftest navbar-initialize/mode ()
+(ert-deftest navbar-initialize/hooks ()
   (navbar-test-save-item-list
-    (setq navbar-item-list (list navbar-test--mode-item))
+    (setq navbar-item-list `((:key t :hooks ,navbar-test--mode-hooks)))
     (unwind-protect
 	(progn
 	  (navbar-initialize)
-	  ;; Initialize `navbar-item-alist'
-	  (should (equal navbar-item-alist
-			 `((navbar-test-mode ,@navbar-test--mode-item))))
-	  ;; Setup mode's on/off hooks
-	  (should (memq (plist-get navbar-test--mode-item :on)
+	  (should (memq 'navbar-test--mode-on-func
 			navbar-test-mode-on-hook))
-	  (should (memq (plist-get navbar-test--mode-item :off)
-			navbar-test-mode-off-hook))
-	  ;; Don't call `:on' function
-	  (should-not (get (plist-get navbar-test--mode-item :on) 'called)))
-      (setq navbar-test-mode-on-hook nil)
-      (setq navbar-test-mode-off-hook nil)
-      (put (plist-get navbar-test--mode-item :on) 'called nil))))
-
-(ert-deftest navbar-initialize/call-on-func ()
-  (navbar-test-save-item-list
-    (setq navbar-item-list
-	  (list (list :key 'navbar-test-mode
-		      :on (lambda () (navbar-item-cache-put
-				      'navbar-test-mode "foo")))))
-    (unwind-protect
-	(progn
-	  (navbar-test-mode 1)
-	  (navbar-initialize)
-	  (should (string= (navbar-item-cache-get 'navbar-test-mode)
-			   "foo")))
-      (navbar-test-mode -1)
+	  (should (memq 'navbar-test--mode-off-func
+			navbar-test-mode-off-hook)))
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
 
+(ert-deftest navbar-initialize/call-on-func-if-key-is-non-nil ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list `((:key t :on navbar-test--mode-on-func)))
+    (unwind-protect
+	(progn
+	  (navbar-initialize)
+	  (should (get 'navbar-test--mode-on-func 'called)))
+      (put 'navbar-test--mode-on-func 'called nil))))
+
+(ert-deftest navbar-initialize/dont-call-on-func-if-key-is-nil ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list `((:key nil :on navbar-test--mode-on-func)))
+    (unwind-protect
+	(progn
+	  (navbar-initialize)
+	  (should-not (get 'navbar-test--mode-on-func 'called)))
+      (put 'navbar-test--mode-on-func 'called nil))))
+
 (ert-deftest navbar-initialize/deinitialize ()
   (navbar-test-save-item-list
-    (setq navbar-item-list (list navbar-test--mode-item))
+    (setq navbar-item-list `((:key t :hooks ,navbar-test--mode-hooks)))
     (navbar-initialize)
     (unwind-protect
 	(progn
 	  (setq navbar-item-list (list navbar-test--item))
 	  (navbar-initialize)
 	  (should (equal navbar-item-alist `((t ,@navbar-test--item))))
-	  (should-not (memq (plist-get navbar-test--mode-item :on)
+	  (should-not (memq 'navbar-test-mode-on-func
 			    navbar-test-mode-on-hook))
-	  (should-not (memq (plist-get navbar-test--mode-item :off)
+	  (should-not (memq 'navbar-test-mode-off-func
 			    navbar-test-mode-off-hook)))
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
 
 (ert-deftest navbar-deinitialize/test ()
   (navbar-test-save-item-list
-    (setq navbar-item-list (list navbar-test--mode-item))
+    (setq navbar-item-list `((:key t :hooks ,navbar-test--mode-hooks)))
     (unwind-protect
 	(progn
 	  (navbar-initialize)
 	  (navbar-deinitialize)
 	  (should-not navbar-item-alist)
-	  (should-not (memq (plist-get navbar-test--mode-item :on)
+	  (should-not (memq 'navbar-test-mode-on-func
 			    navbar-test-mode-on-hook))
-	  (should-not (memq (plist-get navbar-test--mode-item :off)
+	  (should-not (memq 'navbar-test-mode-off-func
 			    navbar-test-mode-off-hook)))
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
@@ -496,7 +495,9 @@
   (should (eq (plist-get navbarx-time :key) 'display-time-mode))
   (should (eq (plist-get navbarx-time :get) 'navbarx-time-get))
   (should (eq (plist-get navbarx-time :on) 'navbarx-time-on))
-  (should (eq (plist-get navbarx-time :off) 'navbarx-time-off)))
+  (should (equal (plist-get navbarx-time :hooks)
+		 '((display-time-mode-on-hook . navbarx-time-on)
+		   (display-time-mode-off-hook . navbarx-time-off)))))
 
 (defvar navbarx-elscreen)
 (when (require 'elscreen nil t)
@@ -506,7 +507,9 @@
     (should (eq (plist-get navbarx-elscreen :key) 'elscreen-mode))
     (should (eq (plist-get navbarx-elscreen :get) 'navbarx-elscreen-get))
     (should (eq (plist-get navbarx-elscreen :on) 'navbarx-elscreen-on))
-    (should (eq (plist-get navbarx-elscreen :off) 'navbarx-elscreen-off))))
+    (should (equal (plist-get navbarx-elscreen :hooks)
+		   '((elscreen-mode-on-hook . navbarx-elscreen-on)
+		     (elscreen-mode-off-hook . navbarx-elscreen-off))))))
 
 (provide 'navbar-test)
 ;;; navbar-test.el ends here
