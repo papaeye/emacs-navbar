@@ -171,12 +171,6 @@ If KEY is `nil', all items are updated by their `:get' functions."
 	(funcall (plist-get item :get)))))
   (funcall navbar-display-function (navbar-buffer frame)))
 
-(defmacro navbar--mode-on-hook (key)
-  `(intern (concat (symbol-name ,key) "-on-hook")))
-
-(defmacro navbar--mode-off-hook (key)
-  `(intern (concat (symbol-name ,key) "-off-hook")))
-
 (defun navbar-initialize ()
   "Initialize `navbar-item-alist' and mode's on/off hooks."
   (navbar-deinitialize)
