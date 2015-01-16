@@ -77,6 +77,23 @@ It is necessary to run `navbar-initialize' to reflect the change of
 (defvar navbar-item-alist nil)
 
 (defmacro navbar-define-item (item enable doc &rest body)
+  "Define a navbar item ITEM.
+ENABLE is a symbol of a variable.
+If the symbol value is `nil', the navbar item is not displayed.
+DOC is a doc string for variable ITEM.
+
+:get	VALUE should be a function which has two responsibilities:
+	It should store ITEM's value to `:cache' property.
+	It should return non-`nil' if the value is updated.
+	Otherwise it should return `nil'.
+	`navbar-item-cache-put' is a helper function for this.
+:initialize
+	VALUE should be a function which is run by `navbar-initialize'
+	if ENABLE is non-`nil' at that time.
+:hooks	VALUE should be a list of cons:
+	CAR is a symbol is a hook and CDR is a function.
+	These are registered and unregistered by
+	`navbar-initialize' and `navbar-deinitialize' respectively."
   (declare (indent 0) (doc-string 3))
   (let ((key `(quote ,item))
 	(cache-put (intern (concat (symbol-name item) "-cache-put")))
@@ -95,6 +112,12 @@ It is necessary to run `navbar-initialize' to reflect the change of
 	 ,doc))))
 
 (defmacro navbar-define-string-item (item string doc &rest body)
+  "Define a navbar item ITEM for string STRING.
+DOC is a doc string for variable ITEM.
+
+:enable
+	Same as ENABLE in `navbar-define-item'.
+"
   (declare (indent 0) (doc-string 3))
   (let ((enable t)
 	extra-keywords
@@ -109,6 +132,18 @@ It is necessary to run `navbar-initialize' to reflect the change of
        ,item ,enable ,doc :cache ,string ,@(nreverse extra-keywords))))
 
 (defmacro navbar-define-mode-item (item feature getter doc &rest body)
+  "Define a navbar item ITEM for feature FEATURE.
+GETTER is same as `:get' in `navbar-define-item'.
+DOC is a doc string for variable ITEM.
+
+:mode-on
+	VALUE should be a function added to FEATURE-mode-on-hook.
+	This is also run by `navbar-initialize'
+	if the mode is enabled at that time.
+:mode-off
+	VALUE should be a function added to FEATURE-mode-off-hook.
+
+These functions added to hooks are removed by `navbar-deinitialize'."
   (declare (indent 0) (doc-string 4))
   (let* ((mode-name (concat (symbol-name feature) "-mode"))
 	 (mode (intern mode-name))
