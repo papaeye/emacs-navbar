@@ -183,7 +183,7 @@ If KEY is `nil', all items are updated by their `:get' functions."
     (when (stringp item)
       (setq item (list :key t :cache item)))
     (let ((key (plist-get item :key))
-	  (value (copy-sequence item))
+	  (value (copy-tree item))
 	  (func-on (plist-get item :on))
 	  (hooks (plist-get item :hooks)))
       (push (cons key value) navbar-item-alist)
