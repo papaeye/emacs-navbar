@@ -105,7 +105,7 @@
     (should (fboundp 'navbarx-foo-cache-put))
     (should-not (fboundp 'navbarx-foo-update))))
 
-(ert-deftest navbar-define-item/update-with-get ()
+(ert-deftest navbar-define-item/should-define-update-if-get-available ()
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-define-item
       navbarx-foo 'navbar-version nil
@@ -255,7 +255,7 @@
     (navbar-initialize)
     (should (equal navbar-item-alist `((t ,@navbar-test--item))))))
 
-(ert-deftest navbar-initialize/text-item ()
+(ert-deftest navbar-initialize/string-item ()
   (navbar-test-save-item-list
     (setq navbar-item-list '("Hello, world!"))
     (navbar-initialize)
