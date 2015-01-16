@@ -71,9 +71,6 @@
 (defvar navbar-test-mode-on-hook)
 (defvar navbar-test-mode-off-hook)
 
-(defvar navbar-test--t t)
-(defvar navbar-test--nil nil)
-
 (define-minor-mode navbar-test-mode nil
   :group 'navbar
   :global t)
@@ -118,7 +115,7 @@
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-test-save-item-list
       (navbar-define-item
-	navbarx-foo 'navbar-test--t nil
+	navbarx-foo t nil
 	:get (lambda () "new-value"))
       (should (string= (navbarx-foo-update) "displayed")))))
 
@@ -126,7 +123,7 @@
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-test-save-item-list
       (navbar-define-item
-	navbarx-foo 'navbar-test--t nil
+	navbarx-foo t nil
 	:get (lambda () nil))
       (should-not (navbarx-foo-update)))))
 
@@ -134,19 +131,19 @@
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-test-save-item-list
       (navbar-define-item
-	navbarx-foo 'navbar-test--nil nil
+	navbarx-foo nil nil
 	:get 'ignore)
       (setq navbar-item-list '(navbarx-foo))
       (navbar-initialize)
-      ;; Make next (navbar-item-cache-put 'navbar-test--nil nil) non-`nil'.
-      (navbar-item-cache-put 'navbar-test--nil t)
+      ;; Make next (navbar-item-cache-put nil nil) non-`nil'.
+      (navbar-item-cache-put nil t)
       (should (string= (navbarx-foo-update) "displayed")))))
 
 (ert-deftest navbar-define-item/item-update/nil--unchanged--nil ()
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-test-save-item-list
       (navbar-define-item
-	navbarx-foo 'navbar-test--nil nil
+	navbarx-foo nil nil
 	:get 'ignore)
       (should-not (navbarx-foo-update)))))
 
@@ -208,8 +205,8 @@
 
 (ert-deftest navbar-serialize/ignore-nil-key ()
   (navbar-test-save-item-list
-    (setq navbar-item-list '((:key navbar-test--t :cache "foo")
-			     (:key navbar-test--nil :cache "bar")))
+    (setq navbar-item-list '((:key t :cache "foo")
+			     (:key nil :cache "bar")))
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo"))))
 
