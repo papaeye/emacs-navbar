@@ -171,10 +171,11 @@
       nil
       :mode-on 'navbar-test--mode-on-func
       :mode-off 'navbar-test--mode-off-func)
-    (should (equal navbarx-foo (list :key 'navbar-test-mode
-				     :get 'ignore
-				     :on 'navbar-test--mode-on-func
-				     :hooks navbar-test--mode-hooks)))))
+    (should (equal navbarx-foo
+		   (list :key 'navbar-test-mode
+			 :get 'ignore
+			 :initialize 'navbar-test--mode-on-func
+			 :hooks navbar-test--mode-hooks)))))
 
 ;;;; `navbar-item-cache-put'
 
@@ -292,7 +293,7 @@
 
 (ert-deftest navbar-initialize/call-on-func-if-key-is-non-nil ()
   (navbar-test-save-item-list
-    (setq navbar-item-list `((:key t :on navbar-test--mode-on-func)))
+    (setq navbar-item-list `((:key t :initialize navbar-test--mode-on-func)))
     (unwind-protect
 	(progn
 	  (navbar-initialize)
@@ -301,7 +302,7 @@
 
 (ert-deftest navbar-initialize/dont-call-on-func-if-key-is-nil ()
   (navbar-test-save-item-list
-    (setq navbar-item-list `((:key nil :on navbar-test--mode-on-func)))
+    (setq navbar-item-list `((:key nil :initialize navbar-test--mode-on-func)))
     (unwind-protect
 	(progn
 	  (navbar-initialize)
@@ -469,9 +470,9 @@
   (navbar-test-save-item-list
     (setq navbar-item-list
 	  (list (list :key t :cache "foo"
-		      :on (lambda () (navbar-update nil t)))))
+		      :initialize (lambda () (navbar-update nil t)))))
     (navbar-test-with-mode
-      ;; Call `:on' function by `navbar-initialize'.
+      ;; Call `:initialize' function by `navbar-initialize'.
       ;; It is necessary to run `navbar-make-window' before that.
       )))
 
@@ -497,7 +498,7 @@
   (should (= (length navbarx-time) 8))
   (should (eq (plist-get navbarx-time :key) 'display-time-mode))
   (should (eq (plist-get navbarx-time :get) 'navbarx-time-get))
-  (should (eq (plist-get navbarx-time :on) 'navbarx-time-on))
+  (should (eq (plist-get navbarx-time :initialize) 'navbarx-time-on))
   (should (equal (plist-get navbarx-time :hooks)
 		 '((display-time-mode-on-hook . navbarx-time-on)
 		   (display-time-mode-off-hook . navbarx-time-off)))))
@@ -509,7 +510,7 @@
     (should (= (length navbarx-elscreen) 8))
     (should (eq (plist-get navbarx-elscreen :key) 'elscreen-mode))
     (should (eq (plist-get navbarx-elscreen :get) 'navbarx-elscreen-get))
-    (should (eq (plist-get navbarx-elscreen :on) 'navbarx-elscreen-on))
+    (should (eq (plist-get navbarx-elscreen :initialize) 'navbarx-elscreen-on))
     (should (equal (plist-get navbarx-elscreen :hooks)
 		   '((elscreen-mode-on-hook . navbarx-elscreen-on)
 		     (elscreen-mode-off-hook . navbarx-elscreen-off))))))

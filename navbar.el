@@ -129,7 +129,7 @@ It is necessary to run `navbar-initialize' to reflect the change of
 	   (push (pop body) extra-keywords))))
     `(navbar-define-item
        ,item (quote ,mode) ,doc
-       :get ,getter :on ,func-on
+       :get ,getter :initialize ,func-on
        :hooks (list ,@(nreverse hooks))
        ,@(nreverse extra-keywords))))
 
@@ -184,13 +184,13 @@ If KEY is `nil', all items are updated by their `:get' functions."
       (setq item (list :key t :cache item)))
     (let ((key (plist-get item :key))
 	  (value (copy-tree item))
-	  (func-on (plist-get item :on))
+	  (func-init (plist-get item :initialize))
 	  (hooks (plist-get item :hooks)))
       (push (cons key value) navbar-item-alist)
       (dolist (hook hooks)
 	(add-hook (car hook) (cdr hook)))
-      (when (and func-on (symbol-value key))
-	(funcall func-on)))))
+      (when (and func-init (symbol-value key))
+	(funcall func-init)))))
 
 (defun navbar-deinitialize ()
   "Remove functions from hooks and clean up `navbar-item-alist'."
