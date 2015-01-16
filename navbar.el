@@ -116,8 +116,7 @@ DOC is a doc string for variable ITEM.
 DOC is a doc string for variable ITEM.
 
 :enable
-	Same as ENABLE in `navbar-define-item'.
-"
+	Same as ENABLE in `navbar-define-item'."
   (declare (indent 0) (doc-string 3))
   (let ((enable t)
 	extra-keywords

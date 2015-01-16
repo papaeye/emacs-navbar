@@ -70,7 +70,6 @@
 
 (defvar navbar-test-mode-on-hook)
 (defvar navbar-test-mode-off-hook)
-
 (define-minor-mode navbar-test-mode nil
   :group 'navbar
   :global t)
