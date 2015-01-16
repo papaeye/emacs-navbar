@@ -76,9 +76,10 @@ It is necessary to run `navbar-initialize' to reflect the change of
 
 (defvar navbar-item-alist nil)
 
-(defmacro navbar-define-item (item key doc &rest body)
+(defmacro navbar-define-item (item enable doc &rest body)
   (declare (indent 0) (doc-string 3))
-  (let ((cache-put (intern (concat (symbol-name item) "-cache-put")))
+  (let ((key `(quote ,item))
+	(cache-put (intern (concat (symbol-name item) "-cache-put")))
 	(item-update (intern (concat (symbol-name item) "-update")))
 	(getter (plist-get body :get)))
     `(progn
@@ -86,26 +87,26 @@ It is necessary to run `navbar-initialize' to reflect the change of
 	 (navbar-item-cache-put ,key value))
        ,(when getter
 	  `(defun ,item-update ()
-	     (when (if (symbol-value ,key)
+	     (when (if (symbol-value ,enable)
 		       (funcall ,getter)
 		     (navbar-item-cache-put ,key nil))
 	       (navbar-update nil ,key))))
-       (defvar ,item (list :key ,key ,@body)
+       (defvar ,item (list :key ,key :enable ,enable ,@body)
 	 ,doc))))
 
 (defmacro navbar-define-string-item (item string doc &rest body)
   (declare (indent 0) (doc-string 3))
-  (let ((key t)
+  (let ((enable t)
 	extra-keywords
 	keyword)
     (while (keywordp (setq keyword (car body)))
       (setq body (cdr body))
       (pcase keyword
-	(`:key (setq key (pop body)))
+	(`:enable (setq enable (pop body)))
 	(_ (push keyword extra-keywords)
 	   (push (pop body) extra-keywords))))
     `(navbar-define-item
-       ,item ,key ,doc :cache ,string ,@(nreverse extra-keywords))))
+       ,item ,enable ,doc :cache ,string ,@(nreverse extra-keywords))))
 
 (defmacro navbar-define-mode-item (item feature getter doc &rest body)
   (declare (indent 0) (doc-string 4))
@@ -146,13 +147,18 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
   (plist-get (cdr (assq key navbar-item-alist))
 	     :cache))
 
+(defun navbar-item-enabled-p (item)
+  "Return non-`nil' if the item ITEM is enabled."
+  (or (not (plist-member item :enable))
+      (symbol-value (plist-get item :enable))))
+
 (defun navbar-serialize ()
   "Convert `navbar-item-alist' to a string."
   (mapconcat 'identity
 	     (navbar--flatten
-	      (cl-loop for pair in navbar-item-alist
-		       when (symbol-value (car pair))
-		       collect (plist-get (cdr pair) :cache)))
+	      (cl-loop for item in (mapcar 'cdr navbar-item-alist)
+		       when (navbar-item-enabled-p item)
+		       collect (plist-get item :cache)))
 	     navbar-item-separator))
 
 (defun navbar-display (buffer)
@@ -183,13 +189,14 @@ If KEY is `nil', all items are updated by their `:get' functions."
     (when (stringp item)
       (setq item (list :key t :cache item)))
     (let ((key (plist-get item :key))
+	  (enable (navbar-item-enabled-p item))
 	  (value (copy-tree item))
 	  (func-init (plist-get item :initialize))
 	  (hooks (plist-get item :hooks)))
       (push (cons key value) navbar-item-alist)
       (dolist (hook hooks)
 	(add-hook (car hook) (cdr hook)))
-      (when (and func-init (symbol-value key))
+      (when (and func-init (symbol-value enable))
 	(funcall func-init)))))
 
 (defun navbar-deinitialize ()

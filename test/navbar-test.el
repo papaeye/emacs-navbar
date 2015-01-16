@@ -100,9 +100,9 @@
 (ert-deftest navbar-define-item/test ()
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-define-item
-      navbarx-foo 'navbar-version nil
-      :cache "foo")
-    (should (equal navbarx-foo (list :key 'navbar-version :cache "foo")))
+      navbarx-foo 'navbar-version nil)
+    (should (equal navbarx-foo
+		   (list :key 'navbarx-foo :enable 'navbar-version)))
     (should (fboundp 'navbarx-foo-cache-put))
     (should-not (fboundp 'navbarx-foo-update))))
 
@@ -111,7 +111,9 @@
     (navbar-define-item
       navbarx-foo 'navbar-version nil
       :get 'ignore)
-    (should (equal navbarx-foo (list :key 'navbar-version :get 'ignore)))
+    (should (equal navbarx-foo
+		   (list :key 'navbarx-foo :enable 'navbar-version
+			 :get 'ignore)))
     (should (fboundp 'navbarx-foo-cache-put))
     (should (fboundp 'navbarx-foo-update))))
 
@@ -139,8 +141,8 @@
 	:get 'ignore)
       (setq navbar-item-list '(navbarx-foo))
       (navbar-initialize)
-      ;; Make next (navbar-item-cache-put nil nil) non-`nil'.
-      (navbar-item-cache-put nil t)
+      ;; Make next (navbar-item-cache-put 'navbarx-foo nil) non-`nil'.
+      (navbar-item-cache-put 'navbarx-foo t)
       (should (string= (navbarx-foo-update) "displayed")))))
 
 (ert-deftest navbar-define-item/item-update/nil--unchanged--nil ()
@@ -155,14 +157,17 @@
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-define-string-item
       navbarx-foo "foo" nil
-      :key 'navbar-version)
-    (should (equal navbarx-foo (list :key 'navbar-version :cache "foo")))))
+      :enable 'navbar-version)
+    (should (equal navbarx-foo
+		   (list :key 'navbarx-foo :enable 'navbar-version
+			 :cache "foo")))))
 
 (ert-deftest navbar-define-string-item/default-key ()
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-define-string-item
       navbarx-foo "foo" nil)
-    (should (equal navbarx-foo (list :key t :cache "foo")))))
+    (should (equal navbarx-foo
+		   (list :key 'navbarx-foo :enable t :cache "foo")))))
 
 (ert-deftest navbar-define-mode-item/test ()
   (navbar-test-with-temp-item-definition navbarx-foo
@@ -172,7 +177,8 @@
       :mode-on 'navbar-test--mode-on-func
       :mode-off 'navbar-test--mode-off-func)
     (should (equal navbarx-foo
-		   (list :key 'navbar-test-mode
+		   (list :key 'navbarx-foo
+			 :enable 'navbar-test-mode
 			 :get 'ignore
 			 :initialize 'navbar-test--mode-on-func
 			 :hooks navbar-test--mode-hooks)))))
@@ -208,10 +214,10 @@
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo bar"))))
 
-(ert-deftest navbar-serialize/ignore-nil-key ()
+(ert-deftest navbar-serialize/ignore-disabled-item ()
   (navbar-test-save-item-list
     (setq navbar-item-list '((:key t :cache "foo")
-			     (:key nil :cache "bar")))
+			     (:key t :enable nil :cache "bar")))
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo"))))
 
@@ -246,16 +252,17 @@
 
 (ert-deftest navbar-initialize/raw-list ()
   (navbar-test-save-item-list
-    (setq navbar-item-list (list navbar-test--item))
+    (setq navbar-item-list (list (list :key t :cache "foo")))
     (navbar-initialize)
     ;; Initialize `navbar-item-alist'
-    (should (equal navbar-item-alist `((t ,@navbar-test--item))))))
+    (should (equal navbar-item-alist '((t :key t :cache "foo"))))))
 
 (ert-deftest navbar-initialize/symbol-item ()
   (navbar-test-save-item-list
     (setq navbar-item-list '(navbar-test--item))
     (navbar-initialize)
-    (should (equal navbar-item-alist `((t ,@navbar-test--item))))))
+    (should (equal navbar-item-alist
+		   `((navbar-test--item ,@navbar-test--item))))))
 
 (ert-deftest navbar-initialize/string-item ()
   (navbar-test-save-item-list
@@ -291,7 +298,7 @@
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
 
-(ert-deftest navbar-initialize/call-on-func-if-key-is-non-nil ()
+(ert-deftest navbar-initialize/call-on-func-if-not-disabled ()
   (navbar-test-save-item-list
     (setq navbar-item-list `((:key t :initialize navbar-test--mode-on-func)))
     (unwind-protect
@@ -300,9 +307,10 @@
 	  (should (get 'navbar-test--mode-on-func 'called)))
       (put 'navbar-test--mode-on-func 'called nil))))
 
-(ert-deftest navbar-initialize/dont-call-on-func-if-key-is-nil ()
+(ert-deftest navbar-initialize/dont-call-on-func-if-enabled ()
   (navbar-test-save-item-list
-    (setq navbar-item-list `((:key nil :initialize navbar-test--mode-on-func)))
+    (setq navbar-item-list
+	  `((:key t :enable nil :initialize navbar-test--mode-on-func)))
     (unwind-protect
 	(progn
 	  (navbar-initialize)
@@ -317,7 +325,8 @@
 	(progn
 	  (setq navbar-item-list (list navbar-test--item))
 	  (navbar-initialize)
-	  (should (equal navbar-item-alist `((t ,@navbar-test--item))))
+	  (should (equal navbar-item-alist
+			 `((navbar-test--item ,@navbar-test--item))))
 	  (should-not (memq 'navbar-test-mode-on-func
 			    navbar-test-mode-on-hook))
 	  (should-not (memq 'navbar-test-mode-off-func
@@ -489,14 +498,16 @@
 
 (require 'navbarx-version)
 (ert-deftest navbarx-version/test ()
-  (should (= (length navbarx-version) 4))
-  (should (eq (plist-get navbarx-version :key) t))
+  (should (= (length navbarx-version) 6))
+  (should (eq (plist-get navbarx-version :key) 'navbarx-version))
+  (should (eq (plist-get navbarx-version :enable) t))
   (should (string= (plist-get navbarx-version :cache) "\u00bb\u00bb")))
 
 (require 'navbarx-time)
 (ert-deftest navbarx-time/test ()
-  (should (= (length navbarx-time) 8))
-  (should (eq (plist-get navbarx-time :key) 'display-time-mode))
+  (should (= (length navbarx-time) 10))
+  (should (eq (plist-get navbarx-time :key) 'navbarx-time))
+  (should (eq (plist-get navbarx-time :enable) 'display-time-mode))
   (should (eq (plist-get navbarx-time :get) 'navbarx-time-get))
   (should (eq (plist-get navbarx-time :initialize) 'navbarx-time-on))
   (should (equal (plist-get navbarx-time :hooks)
@@ -507,8 +518,9 @@
 (when (require 'elscreen nil t)
   (require 'navbarx-elscreen)
   (ert-deftest navbarx-elscreen/test ()
-    (should (= (length navbarx-elscreen) 8))
-    (should (eq (plist-get navbarx-elscreen :key) 'elscreen-mode))
+    (should (= (length navbarx-elscreen) 10))
+    (should (eq (plist-get navbarx-elscreen :key) 'navbarx-elscreen))
+    (should (eq (plist-get navbarx-elscreen :enable) 'elscreen-mode))
     (should (eq (plist-get navbarx-elscreen :get) 'navbarx-elscreen-get))
     (should (eq (plist-get navbarx-elscreen :initialize) 'navbarx-elscreen-on))
     (should (equal (plist-get navbarx-elscreen :hooks)
