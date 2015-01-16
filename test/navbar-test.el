@@ -71,16 +71,16 @@
 (defvar navbar-test-mode-on-hook)
 (defvar navbar-test-mode-off-hook)
 
+(defvar navbar-test--t t)
+(defvar navbar-test--nil nil)
+
 (define-minor-mode navbar-test-mode nil
   :group 'navbar
   :global t)
 
-(defvar navbar-test--t t)
-(defvar navbar-test--nil nil)
-
-(defun navbar-test--func1 ()
-  (put 'navbar-test--func1 'called t))
-(defun navbar-test--func2 ())
+(defun navbar-test--mode-on-func ()
+  (put 'navbar-test--mode-on-func 'called t))
+(defun navbar-test--mode-off-func ())
 
 (navbar-define-string-item
   navbar-test--item "foo"
@@ -89,8 +89,8 @@
 (navbar-define-mode-item
   navbar-test--mode-item navbar-test #'ignore
   "Navbar mode item for testing."
-  :mode-on 'navbar-test--func1
-  :mode-off 'navbar-test--func2)
+  :mode-on 'navbar-test--mode-on-func
+  :mode-off 'navbar-test--mode-off-func)
 
 ;;; Features
 
@@ -168,11 +168,12 @@
     (navbar-define-mode-item
       navbarx-foo navbar-test 'ignore
       nil
-      :mode-on 'func1 :mode-off 'func2)
+      :mode-on 'navbar-test--mode-on-func
+      :mode-off 'navbar-test--mode-off-func)
     (should (equal navbarx-foo (list :key 'navbar-test-mode
 				     :get 'ignore
-				     :on 'func1
-				     :off 'func2)))))
+				     :on 'navbar-test--mode-on-func
+				     :off 'navbar-test--mode-off-func)))))
 
 ;;;; `navbar-item-cache-put'
 
