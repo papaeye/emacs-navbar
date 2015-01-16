@@ -172,7 +172,7 @@ If KEY is `nil', all items are updated by their `:get' functions."
   (funcall navbar-display-function (navbar-buffer frame)))
 
 (defun navbar-initialize ()
-  "Initialize `navbar-item-alist' and mode's on/off hooks."
+  "Initialize `navbar-item-alist' and add functions to hooks."
   (navbar-deinitialize)
   (setq navbar-item-alist nil)
   (dolist (item (nreverse navbar-item-list))
@@ -193,7 +193,7 @@ If KEY is `nil', all items are updated by their `:get' functions."
 	(funcall func-on)))))
 
 (defun navbar-deinitialize ()
-  "Clean up `navbar-item-alist' and mode's on/off hooks."
+  "Remove functions from hooks and clean up `navbar-item-alist'."
   (dolist (item (mapcar 'cdr navbar-item-alist))
     (let ((hooks (plist-get item :hooks)))
       (dolist (hook hooks)
