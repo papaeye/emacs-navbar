@@ -490,7 +490,7 @@
 (require 'navbarx-version)
 (ert-deftest navbarx-version/test ()
   (should (= (length navbarx-version) 4))
-  (should (eq (plist-get navbarx-version :key) 'navbar-version))
+  (should (eq (plist-get navbarx-version :key) t))
   (should (string= (plist-get navbarx-version :cache) "\u00bb\u00bb")))
 
 (require 'navbarx-time)
