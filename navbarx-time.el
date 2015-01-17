@@ -35,7 +35,8 @@
 
 (defun navbarx-time-get ()
   (navbarx-time-cache-put
-   (substring-no-properties display-time-string)))
+   (and display-time-string
+	(substring-no-properties display-time-string))))
 
 (defun navbarx-time-on ()
   (setq global-mode-string

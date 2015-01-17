@@ -513,14 +513,18 @@
 
 (require 'navbarx-time)
 (ert-deftest navbarx-time/test ()
-  (should (= (length navbarx-time) 10))
-  (should (eq (plist-get navbarx-time :key) 'navbarx-time))
-  (should (eq (plist-get navbarx-time :enable) 'display-time-mode))
-  (should (eq (plist-get navbarx-time :get) 'navbarx-time-get))
-  (should (eq (plist-get navbarx-time :initialize) 'navbarx-time-on))
-  (should (equal (plist-get navbarx-time :hooks)
-		 '((display-time-mode-on-hook . navbarx-time-on)
-		   (display-time-mode-off-hook . navbarx-time-off)))))
+  (navbar-test-save-item-list
+    (setq navbar-item-list '(navbarx-time))
+    (navbar-test-with-mode
+      (unwind-protect
+	  (progn
+	    (display-time-mode)
+	    (should-not (memq 'display-time-string global-mode-string))
+	    (should (memq #'navbarx-time-update display-time-hook))
+	    (should (navbar-item-cache-get 'navbarx-time)))
+	(display-time-mode -1)
+	(should-not (navbar-item-cache-get 'navbarx-time))
+	(should-not (memq #'navarx-time-update display-time-hook))))))
 
 (defvar navbarx-elscreen)
 (when (require 'elscreen nil t)
