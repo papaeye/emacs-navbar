@@ -66,6 +66,11 @@ It is necessary to run `navbar-initialize' to reflect the change of
 
 ;;; Utilities
 
+(defconst navbar-font-lock-keywords
+  '(("(\\(navbar-define\\(?:\\sw\\|\\s_\\)*-item\\)\\>\\s-*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
+     (1 font-lock-keyword-face)
+     (2 font-lock-function-name-face nil t))))
+
 (defun navbar--flatten (l)
   (cond
    ((null l) nil)
@@ -341,14 +346,16 @@ If KEY is `nil', all items are updated by their `:get' functions."
   (mapc #'navbar-make-window (frame-list))
   ;; TODO: Make `navbar-initialize' aware of frames.
   (navbar-initialize)
-  (mapc #'navbar-update (frame-list)))
+  (mapc #'navbar-update (frame-list))
+  (font-lock-add-keywords 'emacs-lisp-mode navbar-font-lock-keywords))
 
 (defun navbar-teardown ()
   (navbar-deinitialize)
   (navbar-advices-teardown)
   (remove-hook 'after-make-frame-functions #'navbar-update)
   (remove-hook 'after-make-frame-functions #'navbar-make-window)
-  (mapc 'navbar-kill-buffer-and-window (frame-list)))
+  (mapc 'navbar-kill-buffer-and-window (frame-list))
+  (font-lock-remove-keywords 'emacs-lisp-mode navbar-font-lock-keywords))
 
 ;;;###autoload
 (define-minor-mode navbar-mode nil
