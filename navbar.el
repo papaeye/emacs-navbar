@@ -186,8 +186,12 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
   (plist-get (cdr (assq key navbar-item-alist))
 	     :cache))
 
+(defun navbar-item-enabled-p (key)
+  "Return non-`nil' if KEY's item is enabled."
+  (navbar--item-enabled-p
+   (cdr (assq key navbar-item-alist))))
+
 (defun navbar--item-enabled-p (item)
-  ;; TODO: Make this function consistent with above functions
   (or (not (plist-member item :enable))
       (symbol-value (plist-get item :enable))))
 

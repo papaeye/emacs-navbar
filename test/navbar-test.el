@@ -521,9 +521,11 @@
 	    (display-time-mode)
 	    (should-not (memq 'display-time-string global-mode-string))
 	    (should (memq #'navbarx-time-update display-time-hook))
-	    (should (navbar-item-cache-get 'navbarx-time)))
+	    (should (navbar-item-cache-get 'navbarx-time))
+	    (should (navbar-item-enabled-p 'navbarx-time)))
 	(display-time-mode -1)
 	(should-not (navbar-item-cache-get 'navbarx-time))
+	(should-not (navbar-item-enabled-p 'navbarx-time))
 	(should-not (memq #'navarx-time-update display-time-hook))))))
 
 (defvar navbarx-elscreen)
