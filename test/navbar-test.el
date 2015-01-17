@@ -297,7 +297,7 @@
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
 
-(ert-deftest navbar-initialize/call-on-func-if-not-disabled ()
+(ert-deftest navbar-initialize/call-:initialize-if-enabled ()
   (navbar-test-save-item-list
     (setq navbar-item-list `((:key t :initialize navbar-test--mode-on-func)))
     (unwind-protect
@@ -306,7 +306,7 @@
 	  (should (get 'navbar-test--mode-on-func 'called)))
       (put 'navbar-test--mode-on-func 'called nil))))
 
-(ert-deftest navbar-initialize/dont-call-on-func-if-enabled ()
+(ert-deftest navbar-initialize/dont-call-:initialize-if-disabled ()
   (navbar-test-save-item-list
     (setq navbar-item-list
 	  `((:key t :enable nil :initialize navbar-test--mode-on-func)))
