@@ -76,7 +76,8 @@
 
 (defun navbar-test--mode-on-func ()
   (put 'navbar-test--mode-on-func 'called t))
-(defun navbar-test--mode-off-func ())
+(defun navbar-test--mode-off-func ()
+  (put 'navbar-test--mode-off-func 'called t))
 
 (defvar navbar-test--mode-hooks
   (list (cons 'navbar-test-mode-on-hook 'navbar-test--mode-on-func)
@@ -180,6 +181,7 @@
 			 :enable 'navbar-test-mode
 			 :get 'ignore
 			 :initialize 'navbar-test--mode-on-func
+			 :deinitialize 'navbar-test--mode-off-func
 			 :hooks navbar-test--mode-hooks)))))
 
 ;;;; `navbar-item-cache-put'
@@ -333,7 +335,7 @@
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
 
-(ert-deftest navbar-deinitialize/test ()
+(ert-deftest navbar-deinitialize/hooks ()
   (navbar-test-save-item-list
     (setq navbar-item-list `((:key t :hooks ,navbar-test--mode-hooks)))
     (unwind-protect
@@ -347,6 +349,17 @@
 			    navbar-test-mode-off-hook)))
       (setq navbar-test-mode-on-hook nil)
       (setq navbar-test-mode-off-hook nil))))
+
+(ert-deftest navbar-deinitialize/call-:deinitialize ()
+  (navbar-test-save-item-list
+    (setq navbar-item-list
+	  '((:key t :deinitialize navbar-test--mode-off-func)))
+    (unwind-protect
+	(progn
+	  (navbar-initialize)
+	  (navbar-deinitialize)
+	  (should (get 'navbar-test--mode-off-func 'called)))
+      (put 'navbar-test--mode-off-func 'called nil))))
 
 ;;; GUI
 
@@ -532,11 +545,14 @@
 (when (require 'elscreen nil t)
   (require 'navbarx-elscreen)
   (ert-deftest navbarx-elscreen/test ()
-    (should (= (length navbarx-elscreen) 10))
+    (should (= (length navbarx-elscreen) 12))
     (should (eq (plist-get navbarx-elscreen :key) 'navbarx-elscreen))
     (should (eq (plist-get navbarx-elscreen :enable) 'elscreen-mode))
     (should (eq (plist-get navbarx-elscreen :get) 'navbarx-elscreen-get))
-    (should (eq (plist-get navbarx-elscreen :initialize) 'navbarx-elscreen-on))
+    (should (eq (plist-get navbarx-elscreen :initialize)
+		'navbarx-elscreen-on))
+    (should (eq (plist-get navbarx-elscreen :deinitialize)
+		'navbarx-elscreen-off))
     (should (equal (plist-get navbarx-elscreen :hooks)
 		   '((elscreen-mode-on-hook . navbarx-elscreen-on)
 		     (elscreen-mode-off-hook . navbarx-elscreen-off))))))

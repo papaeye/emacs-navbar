@@ -95,6 +95,8 @@ DOC is a doc string for variable ITEM.
 :initialize
 	VALUE should be a function which is run by `navbar-initialize'
 	if ENABLE is non-`nil' at that time.
+:deinitialize
+	VALUE should be a function which is run by `navbar-deinitialize'.
 :hooks	VALUE should be a list of cons:
 	CAR is a symbol is a hook and CDR is a function.
 	These are registered and unregistered by
@@ -146,6 +148,7 @@ DOC is a doc string for variable ITEM.
 	if the mode is enabled at that time.
 :mode-off
 	VALUE should be a function added to FEATURE-mode-off-hook.
+	This is also run by `navbar-deinitialize'.
 
 These functions added to hooks are removed by `navbar-deinitialize'."
   (declare (indent 0) (doc-string 4))
@@ -169,7 +172,7 @@ These functions added to hooks are removed by `navbar-deinitialize'."
 	   (push (pop body) extra-keywords))))
     `(navbar-define-item
        ,item (quote ,mode) ,doc
-       :get ,getter :initialize ,func-on
+       :get ,getter :initialize ,func-on :deinitialize ,func-off
        :hooks (list ,@(nreverse hooks))
        ,@(nreverse extra-keywords))))
 
@@ -244,9 +247,12 @@ If KEY is `nil', all items are updated by their `:get' functions."
 (defun navbar-deinitialize ()
   "Remove functions from hooks and clean up `navbar-item-alist'."
   (dolist (item (mapcar 'cdr navbar-item-alist))
-    (let ((hooks (plist-get item :hooks)))
+    (let ((hooks (plist-get item :hooks))
+	  (func-deinit (plist-get item :deinitialize)))
       (dolist (hook hooks)
-	(remove-hook (car hook) (cdr hook)))))
+	(remove-hook (car hook) (cdr hook)))
+      (when func-deinit
+	(funcall func-deinit))))
   (setq navbar-item-alist nil))
 
 ;;; GUI
