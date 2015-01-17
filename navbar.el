@@ -186,8 +186,8 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
   (plist-get (cdr (assq key navbar-item-alist))
 	     :cache))
 
-(defun navbar-item-enabled-p (item)
-  "Return non-`nil' if the item ITEM is enabled."
+(defun navbar--item-enabled-p (item)
+  ;; TODO: Make this function consistent with above functions
   (or (not (plist-member item :enable))
       (symbol-value (plist-get item :enable))))
 
@@ -196,7 +196,7 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
   (mapconcat 'identity
 	     (navbar--flatten
 	      (cl-loop for item in (mapcar 'cdr navbar-item-alist)
-		       when (navbar-item-enabled-p item)
+		       when (navbar--item-enabled-p item)
 		       collect (plist-get item :cache)))
 	     navbar-item-separator))
 
@@ -234,7 +234,7 @@ If KEY is `nil', all items are updated by their `:get' functions."
       (push (cons key value) navbar-item-alist)
       (dolist (hook hooks)
 	(add-hook (car hook) (cdr hook)))
-      (when (and func-init (navbar-item-enabled-p item))
+      (when (and func-init (navbar--item-enabled-p value))
 	(funcall func-init)))))
 
 (defun navbar-deinitialize ()
