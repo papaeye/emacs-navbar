@@ -139,22 +139,26 @@
     (navbar-define-item
       navbarx-foo t nil
       :get (lambda () "new-value"))
-    (should (string= (navbarx-foo-update) "displayed"))))
+    (navbar-test-save-item-list
+      (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
+      (should (string= (navbarx-foo-update) "displayed")))))
 
 (ert-deftest navbar-define-item/item-update/t--nil--nil ()
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-define-item
       navbarx-foo t nil
       :get (lambda () nil))
-    (should-not (navbarx-foo-update))))
+    (navbar-test-save-item-list
+      (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
+      (should-not (navbarx-foo-update)))))
 
 (ert-deftest navbar-define-item/item-update/nil--changed--displayed ()
   (navbar-test-with-temp-item-definition navbarx-foo
     (navbar-define-item
       navbarx-foo nil nil
       :get 'ignore)
-    (navbar-test-with-item-list '(navbarx-foo)
-      (navbar-initialize)
+    (navbar-test-save-item-list
+      (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
       ;; Make next (navbar-item-cache-put 'navbarx-foo nil) non-`nil'.
       (navbar-item-cache-put 'navbarx-foo t)
       (should (string= (navbarx-foo-update) "displayed")))))
@@ -164,7 +168,9 @@
     (navbar-define-item
       navbarx-foo nil nil
       :get 'ignore)
-    (should-not (navbarx-foo-update))))
+    (navbar-test-save-item-list
+      (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
+      (should-not (navbarx-foo-update)))))
 
 (ert-deftest navbar-define-string-item/test ()
   (navbar-test-with-temp-item-definition navbarx-foo
@@ -242,20 +248,20 @@
 
 (ert-deftest navbar-update/should-run-get-functions-if-key-is-nil ()
   (navbar-test-save-buffer-list
-    (navbar-test-with-item-list
-	'((:key foo :cache "foo")
-	  (:key bar :cache "bar" :get (lambda ()
-					(navbar-item-cache-put
-					 'bar "baz"))))
-      (setq navbar-display-function 'ignore)
-      (navbar-initialize)
-      (save-window-excursion
-	(navbar-make-window)
-	(navbar-update (selected-frame))
-	(should (string= (navbar-item-cache-get 'foo)
-			 "foo"))
-	(should (string= (navbar-item-cache-get 'bar)
-			 "baz"))))))
+    (let ((navbar-display-function #'ignore))
+      (navbar-test-with-item-list
+	  '((:key foo :cache "foo")
+	    (:key bar :cache "bar" :get (lambda ()
+					  (navbar-item-cache-put
+					   'bar "baz"))))
+	(navbar-initialize)
+	(save-window-excursion
+	  (navbar-make-window)
+	  (navbar-update (selected-frame))
+	  (should (string= (navbar-item-cache-get 'foo)
+			   "foo"))
+	  (should (string= (navbar-item-cache-get 'bar)
+			   "baz")))))))
 
 ;;;; `navbar-initialize'
 
@@ -313,8 +319,8 @@
 
 (ert-deftest navbar-initialize/deinitialize ()
   (navbar-test-with-item-list `((:key t :hooks ,navbar-test--mode-hooks))
-    (navbar-initialize)
     (navbar-test-save-test-mode
+      (navbar-initialize)
       (setq navbar-item-list (list navbar-test--item))
       (navbar-initialize)
       (should (equal navbar-item-alist
