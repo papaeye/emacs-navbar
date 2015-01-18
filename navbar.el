@@ -236,23 +236,23 @@ If KEY is `nil', all items are updated by their `:get' functions."
       (setq item (list :key t :cache item)))
     (let ((key (plist-get item :key))
 	  (value (copy-tree item))
-	  (func-init (plist-get item :initialize))
+	  (func (plist-get item :initialize))
 	  (hooks (plist-get item :hooks)))
       (push (cons key value) navbar-item-alist)
       (dolist (hook hooks)
 	(add-hook (car hook) (cdr hook)))
-      (when (and func-init (navbar--item-enabled-p value))
-	(funcall func-init)))))
+      (when (and func (navbar--item-enabled-p value))
+	(funcall func)))))
 
 (defun navbar-deinitialize ()
   "Remove functions from hooks and clean up `navbar-item-alist'."
   (dolist (item (mapcar 'cdr navbar-item-alist))
     (let ((hooks (plist-get item :hooks))
-	  (func-deinit (plist-get item :deinitialize)))
+	  (func (plist-get item :deinitialize)))
       (dolist (hook hooks)
 	(remove-hook (car hook) (cdr hook)))
-      (when func-deinit
-	(funcall func-deinit))))
+      (when func
+	(funcall func))))
   (setq navbar-item-alist nil))
 
 ;;; GUI
