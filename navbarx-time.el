@@ -27,12 +27,6 @@
 (require 'time)
 (require 'navbar)
 
-(navbar-define-mode-item
-  navbarx-time display-time #'navbarx-time-get
-  "Navbar item for `display-time-mode' support."
-  :mode-on #'navbarx-time-on
-  :mode-off #'navbarx-time-off)
-
 (defun navbarx-time-get ()
   (navbarx-time-cache-put
    (and display-time-string
@@ -47,6 +41,13 @@
 (defun navbarx-time-off ()
   (navbarx-time-update)
   (remove-hook 'display-time-hook #'navbarx-time-update))
+
+(navbar-define-item navbarx-time
+  "Navbar item for `display-time-mode' support."
+  :get #'navbarx-time-get
+  :mode display-time-mode
+  :mode-on #'navbarx-time-on
+  :mode-off #'navbarx-time-off)
 
 (provide 'navbarx-time)
 ;;; navbarx-time.el ends here

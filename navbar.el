@@ -81,12 +81,19 @@ It is necessary to run `navbar-initialize' to reflect the change of
 
 (defvar navbar-item-alist nil)
 
-(defmacro navbar-define-item (item enable doc &rest body)
+(defmacro navbar-define-item (item doc &rest args)
   "Define a navbar item ITEM.
-ENABLE is a symbol of a variable.
-If the symbol value is `nil', the navbar item is not displayed.
+A navbar item is a plain property list.
+This macro defines a variable ITEM whose value is the property list and
+a function `ITEM-cache-put' which stores the content of the navbar item.
+If `:get' property described below is supplied in ARGS, this macro also
+defines a function `ITEM-update' which updates the navbar buffer cleverly.
+
 DOC is a doc string for variable ITEM.
 
+:enable
+	VALUE should be a symbol of a variable.
+	If the symbol value is `nil', the navbar item is not displayed.
 :get	VALUE should be a function which has two responsibilities:
 	It should store ITEM's value to `:cache' property.
 	It should return non-`nil' if the value is updated.
@@ -98,14 +105,70 @@ DOC is a doc string for variable ITEM.
 :deinitialize
 	VALUE should be a function which is run by `navbar-deinitialize'.
 :hooks	VALUE should be a list of cons:
-	CAR is a symbol is a hook and CDR is a function.
-	These are registered and unregistered by
-	`navbar-initialize' and `navbar-deinitialize' respectively."
-  (declare (indent 0) (doc-string 3))
+	CAR is a symbol of a hook and CDR is a function.
+	Each function is added to the corresponding hook by
+	`navbar-initialize' and removed from it by `navbar-deinitialize'.
+:mode	VALUE should be a symbol of a mode.
+:mode-on
+	VALUE should be a function added to MODE-on-hook.
+	It is removed from the hook by `navbar-deinitialize'.
+	This is also run by `navbar-initialize'
+	if the mode is enabled at that time.
+:mode-off
+	VALUE should be a function added to MODE-off-hook.
+	It is removed from the hook by `navbar-deinitialize'.
+	This is also run by `navbar-deinitialize'."
+  (declare (indent defun) (doc-string 2))
   (let ((key `(quote ,item))
 	(cache-put (intern (concat (symbol-name item) "-cache-put")))
 	(item-update (intern (concat (symbol-name item) "-update")))
-	(getter (plist-get body :get)))
+	(enable t)
+	getter
+	get
+	initialize
+	deinitialize
+	hooks
+	;; for mode
+	mode
+	mode-on-hook
+	mode-on-func
+	mode-off-hook
+	mode-off-func
+	mode-hooks
+	;; for extra keywords
+	extra-keywords
+	keyword)
+
+    (while (keywordp (setq keyword (car args)))
+      (setq args (cdr args))
+      (pcase keyword
+	(`:enable (setq enable `(quote ,(pop args))))
+	(`:get (setq getter (pop args)))
+	(`:initialize (setq initialize (list :initialize (pop args))))
+	(`:deinitialize (setq deinitialize (list :deinitialize (pop args))))
+	(`:hooks (setq hooks (list :hooks (pop args))))
+	(`:mode (setq mode (pop args)))
+	(`:mode-on (setq mode-on-func (pop args)))
+	(`:mode-off (setq mode-off-func (pop args)))
+	(_ (push keyword extra-keywords)
+	   (push (pop args) extra-keywords))))
+
+    (when getter
+      (setq get (list :get getter)))
+
+    (when mode
+      (setq enable `(quote ,mode))
+      (setq mode-on-hook (intern (concat (symbol-name mode) "-on-hook")))
+      (setq mode-off-hook (intern (concat (symbol-name mode) "-off-hook")))
+      (when mode-on-func
+	(setq initialize (list :initialize mode-on-func))
+	(push (list 'cons `(quote ,mode-on-hook) mode-on-func) mode-hooks))
+      (when mode-off-func
+	(setq deinitialize (list :deinitialize mode-off-func))
+	(push (list 'cons `(quote ,mode-off-hook) mode-off-func) mode-hooks))
+      (when mode-hooks
+	(setq hooks (list :hooks `(list ,@(nreverse mode-hooks))))))
+
     `(progn
        (defun ,cache-put (value)
 	 (navbar-item-cache-put ,key value))
@@ -115,66 +178,13 @@ DOC is a doc string for variable ITEM.
 		       (funcall ,getter)
 		     (navbar-item-cache-put ,key nil))
 	       (navbar-update nil ,key))))
-       (defvar ,item (list :key ,key :enable ,enable ,@body)
+       (defvar ,item (list :key ,key :enable ,enable
+			   ,@get
+			   ,@initialize
+			   ,@deinitialize
+			   ,@hooks
+			   ,@(nreverse extra-keywords))
 	 ,doc))))
-
-(defmacro navbar-define-string-item (item string doc &rest body)
-  "Define a navbar item ITEM for string STRING.
-DOC is a doc string for variable ITEM.
-
-:enable
-	Same as ENABLE in `navbar-define-item'."
-  (declare (indent 0) (doc-string 3))
-  (let ((enable t)
-	extra-keywords
-	keyword)
-    (while (keywordp (setq keyword (car body)))
-      (setq body (cdr body))
-      (pcase keyword
-	(`:enable (setq enable (pop body)))
-	(_ (push keyword extra-keywords)
-	   (push (pop body) extra-keywords))))
-    `(navbar-define-item
-       ,item ,enable ,doc :cache ,string ,@(nreverse extra-keywords))))
-
-(defmacro navbar-define-mode-item (item feature getter doc &rest body)
-  "Define a navbar item ITEM for feature FEATURE.
-GETTER is same as `:get' in `navbar-define-item'.
-DOC is a doc string for variable ITEM.
-
-:mode-on
-	VALUE should be a function added to FEATURE-mode-on-hook.
-	This is also run by `navbar-initialize'
-	if the mode is enabled at that time.
-:mode-off
-	VALUE should be a function added to FEATURE-mode-off-hook.
-	This is also run by `navbar-deinitialize'.
-
-These functions added to hooks are removed by `navbar-deinitialize'."
-  (declare (indent 0) (doc-string 4))
-  (let* ((mode-name (concat (symbol-name feature) "-mode"))
-	 (mode (intern mode-name))
-	 (hook-on (intern (concat mode-name "-on-hook")))
-	 (hook-off (intern (concat mode-name "-off-hook")))
-	 func-on
-	 func-off
-	 hooks
-	 extra-keywords
-	 keyword)
-    (while (keywordp (setq keyword (car body)))
-      (setq body (cdr body))
-      (pcase keyword
-	(`:mode-on (setq func-on (pop body))
-		   (push (list 'cons `(quote ,hook-on) func-on) hooks))
-	(`:mode-off (setq func-off (pop body))
-		    (push (list 'cons `(quote ,hook-off) func-off) hooks))
-	(_ (push keyword extra-keywords)
-	   (push (pop body) extra-keywords))))
-    `(navbar-define-item
-       ,item (quote ,mode) ,doc
-       :get ,getter :initialize ,func-on :deinitialize ,func-off
-       :hooks (list ,@(nreverse hooks))
-       ,@(nreverse extra-keywords))))
 
 (defun navbar-item-cache-put (key new-value)
   "Put KEY's `:cache' value to NEW-VALUE.

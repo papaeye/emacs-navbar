@@ -57,12 +57,6 @@
   (let ((screen (navbar-property-at pos 'navbarx-elscreen-screen window)))
     (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
 
-(navbar-define-mode-item
-  navbarx-elscreen elscreen #'navbarx-elscreen-get
-  "Navbar item for ElScreen support."
-  :mode-on #'navbarx-elscreen-on
-  :mode-off #'navbarx-elscreen-off)
-
 (defun navbarx-elscreen-get ()
   (when (and (not (window-minibuffer-p))
 	     (elscreen-screen-modified-p 'navbarx-elscreen-get))
@@ -121,6 +115,13 @@
   (navbarx-elscreen-update)
   (add-hook 'elscreen-screen-update-hook 'elscreen-tab-update)
   (remove-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update))
+
+(navbar-define-item navbarx-elscreen
+  "Navbar item for ElScreen support."
+  :get #'navbarx-elscreen-get
+  :mode elscreen-mode
+  :mode-on #'navbarx-elscreen-on
+  :mode-off #'navbarx-elscreen-off)
 
 (provide 'navbarx-elscreen)
 ;;; navbarx-elscreen.el ends here
