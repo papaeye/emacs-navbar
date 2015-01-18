@@ -212,7 +212,7 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
   (with-current-buffer buffer
     (let (deactivate-mark)
       (erase-buffer)
-      (insert (navbar-serialize)))))
+      (insert (funcall navbar-serialize-function)))))
 
 (defun navbar-update (frame &optional key)
   "Update navbar of FRAME.
