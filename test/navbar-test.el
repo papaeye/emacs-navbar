@@ -488,9 +488,9 @@
 
 (ert-deftest navbar-mode/font-lock-keywords ()
   (navbar-test-with-mode
-   (should
-    (member navbar-font-lock-keywords
-	    (cadr (assq 'emacs-lisp-mode font-lock-keywords-alist)))))
+    (should
+     (member navbar-font-lock-keywords
+	     (cadr (assq 'emacs-lisp-mode font-lock-keywords-alist)))))
   (should-not
    (member navbar-font-lock-keywords
 	   (cadr (assq 'emacs-lisp-mode font-lock-keywords-alist)))))
