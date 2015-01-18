@@ -74,6 +74,17 @@
        (fmakunbound (quote ,cache-put))
        (fmakunbound (quote ,item-update)))))
 
+(defmacro navbar-test-save-test-mode (&rest body)
+  (declare (indent 0) (debug t))
+  `(let ((old-mode (or navbar-test-mode -1)))
+     (unwind-protect
+	 (progn ,@body)
+       (navbar-test-mode old-mode)
+       (setq navbar-test-mode-on-hook nil)
+       (setq navbar-test-mode-off-hook nil)
+       (put 'navbar-test--mode-on-func 'called nil)
+       (put 'navbar-test--mode-off-func 'called nil))))
+
 (defvar navbar-test-mode-on-hook)
 (defvar navbar-test-mode-off-hook)
 (define-minor-mode navbar-test-mode nil
@@ -279,75 +290,58 @@
 
 (ert-deftest navbar-initialize/hooks ()
   (navbar-test-with-item-list `((:key t :hooks ,navbar-test--mode-hooks))
-    (unwind-protect
-	(progn
-	  (navbar-initialize)
-	  (should (memq 'navbar-test--mode-on-func
-			navbar-test-mode-on-hook))
-	  (should (memq 'navbar-test--mode-off-func
-			navbar-test-mode-off-hook)))
-      (setq navbar-test-mode-on-hook nil)
-      (setq navbar-test-mode-off-hook nil))))
+    (navbar-test-save-test-mode
+      (navbar-initialize)
+      (should (memq 'navbar-test--mode-on-func
+		    navbar-test-mode-on-hook))
+      (should (memq 'navbar-test--mode-off-func
+		    navbar-test-mode-off-hook)))))
 
 (ert-deftest navbar-initialize/call-:initialize-if-enabled ()
   (navbar-test-with-item-list
       `((:key t :initialize navbar-test--mode-on-func))
-    (unwind-protect
-	(progn
-	  (navbar-initialize)
-	  (should (get 'navbar-test--mode-on-func 'called)))
-      (put 'navbar-test--mode-on-func 'called nil))))
+    (navbar-test-save-test-mode
+      (navbar-initialize)
+      (should (get 'navbar-test--mode-on-func 'called)))))
 
 (ert-deftest navbar-initialize/dont-call-:initialize-if-disabled ()
   (navbar-test-with-item-list
       `((:key t :enable nil :initialize navbar-test--mode-on-func))
-    (unwind-protect
-	(progn
-	  (navbar-initialize)
-	  (should-not (get 'navbar-test--mode-on-func 'called)))
-      (put 'navbar-test--mode-on-func 'called nil))))
+    (navbar-test-save-test-mode
+      (navbar-initialize)
+      (should-not (get 'navbar-test--mode-on-func 'called)))))
 
 (ert-deftest navbar-initialize/deinitialize ()
-  (navbar-test-with-item-list
-      `((:key t :hooks ,navbar-test--mode-hooks))
+  (navbar-test-with-item-list `((:key t :hooks ,navbar-test--mode-hooks))
     (navbar-initialize)
-    (unwind-protect
-	(progn
-	  (setq navbar-item-list (list navbar-test--item))
-	  (navbar-initialize)
-	  (should (equal navbar-item-alist
-			 `((navbar-test--item ,@navbar-test--item))))
-	  (should-not (memq 'navbar-test-mode-on-func
-			    navbar-test-mode-on-hook))
-	  (should-not (memq 'navbar-test-mode-off-func
-			    navbar-test-mode-off-hook)))
-      (setq navbar-test-mode-on-hook nil)
-      (setq navbar-test-mode-off-hook nil))))
+    (navbar-test-save-test-mode
+      (setq navbar-item-list (list navbar-test--item))
+      (navbar-initialize)
+      (should (equal navbar-item-alist
+		     `((navbar-test--item ,@navbar-test--item))))
+      (should-not (memq 'navbar-test-mode-on-func
+			navbar-test-mode-on-hook))
+      (should-not (memq 'navbar-test-mode-off-func
+			navbar-test-mode-off-hook)))))
 
 (ert-deftest navbar-deinitialize/hooks ()
-  (navbar-test-with-item-list
-      `((:key t :hooks ,navbar-test--mode-hooks))
-    (unwind-protect
-	(progn
-	  (navbar-initialize)
-	  (navbar-deinitialize)
-	  (should-not navbar-item-alist)
-	  (should-not (memq 'navbar-test-mode-on-func
-			    navbar-test-mode-on-hook))
-	  (should-not (memq 'navbar-test-mode-off-func
-			    navbar-test-mode-off-hook)))
-      (setq navbar-test-mode-on-hook nil)
-      (setq navbar-test-mode-off-hook nil))))
+  (navbar-test-with-item-list `((:key t :hooks ,navbar-test--mode-hooks))
+    (navbar-test-save-test-mode
+      (navbar-initialize)
+      (navbar-deinitialize)
+      (should-not navbar-item-alist)
+      (should-not (memq 'navbar-test-mode-on-func
+			navbar-test-mode-on-hook))
+      (should-not (memq 'navbar-test-mode-off-func
+			navbar-test-mode-off-hook)))))
 
 (ert-deftest navbar-deinitialize/call-:deinitialize ()
   (navbar-test-with-item-list
       '((:key t :deinitialize navbar-test--mode-off-func))
-    (unwind-protect
-	(progn
-	  (navbar-initialize)
-	  (navbar-deinitialize)
-	  (should (get 'navbar-test--mode-off-func 'called)))
-      (put 'navbar-test--mode-off-func 'called nil))))
+    (navbar-test-save-test-mode
+      (navbar-initialize)
+      (navbar-deinitialize)
+      (should (get 'navbar-test--mode-off-func 'called)))))
 
 ;;; GUI
 
