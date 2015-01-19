@@ -67,7 +67,7 @@ It is necessary to run `navbar-initialize' to reflect the change of
 ;;; Utilities
 
 (defconst navbar-font-lock-keywords
-  '(("(\\(navbar-define\\(?:\\sw\\|\\s_\\)*-item\\)\\>\\s-*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
+  '(("(\\(navbar-define-item\\)\\>\\s-*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
      (1 font-lock-keyword-face)
      (2 font-lock-function-name-face nil t))))
 
