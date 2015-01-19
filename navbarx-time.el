@@ -28,7 +28,7 @@
 (require 'navbar)
 
 (defun navbarx-time-get ()
-  (navbarx-time-cache-put
+  (navbarx-time-value-put
    (and display-time-string
 	(substring-no-properties display-time-string))))
 

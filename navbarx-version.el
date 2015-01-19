@@ -33,7 +33,7 @@
 
 (navbar-define-item navbarx-version
   "Navbar item for `navbar-version'."
-  :cache (propertize
+  :value (propertize
 	  "\u00bb\u00bb"
 	  'face 'navbarx-version
 	  'help-echo (concat "navbar " navbar-version)))

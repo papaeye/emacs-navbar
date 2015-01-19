@@ -65,13 +65,13 @@
   (declare (indent 1) (debug t))
   `(let* ((temp-item ,item)
 	  (temp-item-name (symbol-name temp-item))
-	  (temp-item-cache-put (intern (concat temp-item-name "-cache-put")))
+	  (temp-item-value-put (intern (concat temp-item-name "-value-put")))
 	  (temp-item-update (intern (concat temp-item-name "-update")))
 	  (navbar-display-function (lambda (_buffer) "displayed")))
      (unwind-protect
 	 (progn ,@body)
        (makunbound temp-item)
-       (fmakunbound temp-item-cache-put)
+       (fmakunbound temp-item-value-put)
        (fmakunbound temp-item-update))))
 
 (defmacro navbar-test-save-test-mode (&rest body)
@@ -102,7 +102,7 @@
 
 (navbar-define-item navbar-test--item
   "Navbar string item for testing."
-  :cache "foo")
+  :value "foo")
 
 (navbar-define-item navbar-test--mode-item
   "Navbar mode item for testing."
@@ -119,14 +119,14 @@
   (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
 				:enable navbar-version)
     (should (equal navbarx-foo '(:key navbarx-foo :enable navbar-version)))
-    (should (fboundp 'navbarx-foo-cache-put))
+    (should (fboundp 'navbarx-foo-value-put))
     (should-not (fboundp 'navbarx-foo-update))))
 
 (ert-deftest navbar-define-item/should-define-update-if-:get-available ()
   (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
 				:get 'ignore)
     (should (equal navbarx-foo '(:key navbarx-foo :enable t :get ignore)))
-    (should (fboundp 'navbarx-foo-cache-put))
+    (should (fboundp 'navbarx-foo-value-put))
     (should (fboundp 'navbarx-foo-update))))
 
 (ert-deftest navbar-define-item/item-update/t--new-value--displayed ()
@@ -149,8 +149,8 @@
 				:get 'ignore)
     (navbar-test-save-item-list
       (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
-      ;; Make next (navbar-item-cache-put 'navbarx-foo nil) non-`nil'.
-      (navbar-item-cache-put 'navbarx-foo t)
+      ;; Make next (navbar-item-value-put 'navbarx-foo nil) non-`nil'.
+      (navbar-item-value-put 'navbarx-foo t)
       (should (string= (navbarx-foo-update) "displayed")))))
 
 (ert-deftest navbar-define-item/item-update/nil--unchanged--nil ()
@@ -164,9 +164,9 @@
 (ert-deftest navbar-define-item/string-item ()
   (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
 				:enable navbar-version
-				:cache "foo")
+				:value "foo")
     (should (equal navbarx-foo
-		   '(:key navbarx-foo :enable navbar-version :cache "foo")))))
+		   '(:key navbarx-foo :enable navbar-version :value "foo")))))
 
 (ert-deftest navbar-define-item/mode-item ()
   (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
@@ -197,44 +197,44 @@
 			 :deinitialize 'navbar-test--mode-off-func
 			 :hooks navbar-test--mode-hooks)))))
 
-;;;; `navbar-item-cache-put'
+;;;; `navbar-item-value-put'
 
-(ert-deftest navbar-item-cache-put/new-value ()
+(ert-deftest navbar-item-value-put/new-value ()
   (navbar-test-save-item-list
-    (setq navbar-item-alist '((foo :cache "foo")))
-    (should (navbar-item-cache-put 'foo "bar"))))
+    (setq navbar-item-alist '((foo :value "foo")))
+    (should (navbar-item-value-put 'foo "bar"))))
 
-(ert-deftest navbar-item-cache-put/unchanged ()
+(ert-deftest navbar-item-value-put/unchanged ()
   (navbar-test-save-item-list
-    (setq navbar-item-alist '((foo :cache "foo")))
-    (should-not (navbar-item-cache-put 'foo "foo"))))
+    (setq navbar-item-alist '((foo :value "foo")))
+    (should-not (navbar-item-value-put 'foo "foo"))))
 
-(ert-deftest navbar-item-cache-put/nil ()
+(ert-deftest navbar-item-value-put/nil ()
   (navbar-test-save-item-list
-    (setq navbar-item-alist '((foo :cache "foo")))
-    (should (navbar-item-cache-put 'foo nil))))
+    (setq navbar-item-alist '((foo :value "foo")))
+    (should (navbar-item-value-put 'foo nil))))
 
 ;;;; `navbar-serialize'
 
-(ert-deftest navbar-serialize/string-cache ()
-  (navbar-test-with-item-list '((:key t :cache "foo"))
+(ert-deftest navbar-serialize/string-value ()
+  (navbar-test-with-item-list '((:key t :value "foo"))
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo"))))
 
-(ert-deftest navbar-serialize/list-cache ()
-  (navbar-test-with-item-list '((:key t :cache ("foo" "bar")))
+(ert-deftest navbar-serialize/list-value ()
+  (navbar-test-with-item-list '((:key t :value ("foo" "bar")))
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo bar"))))
 
 (ert-deftest navbar-serialize/ignore-disabled-item ()
-  (navbar-test-with-item-list '((:key t :cache "foo")
-				(:key t :enable nil :cache "bar"))
+  (navbar-test-with-item-list '((:key t :value "foo")
+				(:key t :enable nil :value "bar"))
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo"))))
 
 (ert-deftest navbar-serialize/nest ()
-  (navbar-test-with-item-list '((:key t :cache (("foo" "bar")))
-				(:key t :cache "baz"))
+  (navbar-test-with-item-list '((:key t :value (("foo" "bar")))
+				(:key t :value "baz"))
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo bar baz"))))
 
@@ -244,26 +244,26 @@
   (navbar-test-save-buffer-list
     (let ((navbar-display-function #'ignore))
       (navbar-test-with-item-list
-	  '((:key foo :cache "foo")
-	    (:key bar :cache "bar" :get (lambda ()
-					  (navbar-item-cache-put
+	  '((:key foo :value "foo")
+	    (:key bar :value "bar" :get (lambda ()
+					  (navbar-item-value-put
 					   'bar "baz"))))
 	(navbar-initialize)
 	(save-window-excursion
 	  (navbar-make-window)
 	  (navbar-update (selected-frame))
-	  (should (string= (navbar-item-cache-get 'foo)
+	  (should (string= (navbar-item-value-get 'foo)
 			   "foo"))
-	  (should (string= (navbar-item-cache-get 'bar)
+	  (should (string= (navbar-item-value-get 'bar)
 			   "baz")))))))
 
 ;;;; `navbar-initialize'
 
 (ert-deftest navbar-initialize/raw-list ()
-  (navbar-test-with-item-list '((:key t :cache "foo"))
+  (navbar-test-with-item-list '((:key t :value "foo"))
     (navbar-initialize)
     ;; Initialize `navbar-item-alist'
-    (should (equal navbar-item-alist '((t :key t :cache "foo"))))))
+    (should (equal navbar-item-alist '((t :key t :value "foo"))))))
 
 (ert-deftest navbar-initialize/symbol-item ()
   (navbar-test-with-item-list '(navbar-test--item)
@@ -274,7 +274,7 @@
 (ert-deftest navbar-initialize/string-item ()
   (navbar-test-with-item-list '("Hello, world!")
     (navbar-initialize)
-    (should (equal navbar-item-alist `((t :key t :cache "Hello, world!"))))))
+    (should (equal navbar-item-alist `((t :key t :value "Hello, world!"))))))
 
 (ert-deftest navbar-initialize/autoload ()
   (navbar-test-with-item-list '(navbarx-version)
@@ -282,8 +282,8 @@
     (should (boundp 'navbarx-version))))
 
 (ert-deftest navbar-initialize/order ()
-  (navbar-test-with-item-list '((:key t :cache "foo")
-				(:key bar :cache "bar"))
+  (navbar-test-with-item-list '((:key t :value "foo")
+				(:key bar :value "bar"))
     (navbar-initialize)
     (should (eq (car (nth 0 navbar-item-alist)) 't))
     (should (eq (car (nth 1 navbar-item-alist)) 'bar))))
@@ -471,7 +471,7 @@
 
 (ert-deftest navbar-mode/should-initialize-after-setup ()
   (navbar-test-with-item-list
-      (list (list :key t :cache "foo"
+      (list (list :key t :value "foo"
 		  :initialize (lambda () (navbar-update nil t))))
     (navbar-test-with-mode
       ;; Call `:initialize' function by `navbar-initialize'.
@@ -479,7 +479,7 @@
       )))
 
 (ert-deftest navbar-mode/should-update-after-initialize ()
-  (navbar-test-with-item-list '((:key t :cache "foo"))
+  (navbar-test-with-item-list '((:key t :value "foo"))
     (navbar-test-with-mode
       ;; It is necessary to `navbar-update' after `navbar-initialize'
       ;; to display static contents.
@@ -502,7 +502,7 @@
   (should (= (length navbarx-version) 6))
   (should (eq (plist-get navbarx-version :key) 'navbarx-version))
   (should (eq (plist-get navbarx-version :enable) t))
-  (should (string= (plist-get navbarx-version :cache) "\u00bb\u00bb")))
+  (should (string= (plist-get navbarx-version :value) "\u00bb\u00bb")))
 
 (require 'navbarx-time)
 (ert-deftest navbarx-time/test ()
@@ -513,10 +513,10 @@
 	    (display-time-mode)
 	    (should-not (memq 'display-time-string global-mode-string))
 	    (should (memq #'navbarx-time-update display-time-hook))
-	    (should (navbar-item-cache-get 'navbarx-time))
+	    (should (navbar-item-value-get 'navbarx-time))
 	    (should (navbar-item-enabled-p 'navbarx-time)))
 	(display-time-mode -1)
-	(should-not (navbar-item-cache-get 'navbarx-time))
+	(should-not (navbar-item-value-get 'navbarx-time))
 	(should-not (navbar-item-enabled-p 'navbarx-time))
 	(should-not (memq #'navarx-time-update display-time-hook))))))
 
