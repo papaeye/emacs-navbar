@@ -58,9 +58,11 @@
     (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
 
 (defun navbarx-elscreen-get ()
-  (when (and (not (window-minibuffer-p))
-	     (elscreen-screen-modified-p 'navbarx-elscreen-get))
-    (navbarx-elscreen-value-put (navbarx-elscreen-get1))))
+  (navbarx-elscreen-value-put
+   (if (and (not (window-minibuffer-p))
+	    (elscreen-screen-modified-p 'navbarx-elscreen-get))
+       (navbarx-elscreen-get1)
+     'unchanged)))
 
 (defun navbarx-elscreen-get1 ()
   (let ((screen-list (sort (elscreen-get-screen-list) '<))

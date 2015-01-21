@@ -515,7 +515,10 @@
 	  (should-not (memq 'elscreen-tab-update elscreen-screen-update-hook))
 	  (should (memq 'navbarx-elscreen-update elscreen-screen-update-hook))
 	  (should (navbar-item-value-get 'navbarx-elscreen))
-	  (should (navbar-item-enabled-p 'navbarx-elscreen)))
+	  (should (navbar-item-enabled-p 'navbarx-elscreen))
+	  ;; Successive call doesn't update navbar buffer
+	  (should-not (navbarx-elscreen-get))
+	  (should-not (navbarx-elscreen-update)))
 	(should (memq 'elscreen-tab-update elscreen-screen-update-hook))
 	(should-not (memq 'navbarx-elscreen-update
 			  elscreen-screen-update-hook))
