@@ -84,8 +84,7 @@ It is necessary to run `navbar-initialize' to reflect the change of
 (defmacro navbar-define-item (item doc &rest args)
   "Define a navbar item ITEM.
 A navbar item is a plain property list.
-This macro defines a variable ITEM whose value is the property list and
-a function `ITEM-value-put' which stores the content of the navbar item.
+This macro defines a variable ITEM whose value is the property list.
 If `:get' property described below is supplied in ARGS, this macro also
 defines a function `ITEM-update' which updates the navbar buffer cleverly.
 
@@ -94,11 +93,9 @@ DOC is a doc string for variable ITEM.
 :enable
 	VALUE should be a symbol of a variable.
 	If the symbol value is `nil', the navbar item is not displayed.
-:get	VALUE should be a function which has two responsibilities:
-	It should store ITEM's value to `:value' property.
-	It should return non-`nil' if the value is updated.
-	Otherwise it should return `nil'.
-	`navbar-item-value-put' is a helper function for this.
+:get	VALUE should be a function which returns the current value of
+	the navbar item.
+	It should return symbol `unchanged' if the value is not updated.
 :initialize
 	VALUE should be a function which is run by `navbar-initialize'
 	if ENABLE is non-`nil' at that time.
@@ -120,7 +117,6 @@ DOC is a doc string for variable ITEM.
 	This is also run by `navbar-deinitialize'."
   (declare (indent defun) (doc-string 2))
   (let ((key `(quote ,item))
-	(value-put (intern (concat (symbol-name item) "-value-put")))
 	(item-update (intern (concat (symbol-name item) "-update")))
 	(enable t)
 	getter
@@ -170,13 +166,9 @@ DOC is a doc string for variable ITEM.
 	(setq hooks (list :hooks `(list ,@(nreverse mode-hooks))))))
 
     `(progn
-       (defun ,value-put (value)
-	 (navbar-item-value-put ,key value))
        ,(when getter
 	  `(defun ,item-update ()
-	     (when (if (symbol-value ,enable)
-		       (funcall ,getter)
-		     (navbar-item-value-put ,key nil))
+	     (when (navbar-item-update ,key)
 	       (navbar-update nil ,key))))
        (defvar ,item (list :key ,key :enable ,enable
 			   ,@get
@@ -185,17 +177,6 @@ DOC is a doc string for variable ITEM.
 			   ,@hooks
 			   ,@(nreverse extra-keywords))
 	 ,doc))))
-
-(defun navbar-item-value-put (key new-value)
-  "Change KEY's value to NEW-VALUE
-unless NEW-VALUE is `unchanged' or same as existing value.
-
-Return non-nil if the value of :value property is changed."
-  (let* ((item (cdr (assq key navbar-item-alist)))
-	 (old-value (plist-get item :value)))
-    (unless (or (eq new-value 'unchanged)
-		(equal new-value old-value))
-      (plist-put item :value new-value))))
 
 (defun navbar-item-value-get (key)
   "Return KEY's `:value' property value."
@@ -210,6 +191,22 @@ Return non-nil if the value of :value property is changed."
 (defun navbar--item-enabled-p (item)
   (or (not (plist-member item :enable))
       (symbol-value (plist-get item :enable))))
+
+(defun navbar-item-update (key)
+  "Update KEY's value by running the value of :get property if available.
+
+Return non-nil if the item has :get property and the return value of
+the :get function is neither symbol `unchanged' nor existing value."
+  (let* ((item (cdr (assq key navbar-item-alist)))
+	 (getter (plist-get item :get))
+	 old-value new-value)
+    (when getter
+      (setq old-value (plist-get item :value))
+      (setq new-value (and (navbar--item-enabled-p item)
+			   (funcall getter)))
+      (unless (or (eq new-value 'unchanged)
+		  (equal new-value old-value))
+	(plist-put item :value new-value)))))
 
 (defun navbar-serialize ()
   "Convert `navbar-item-alist' to a string."
