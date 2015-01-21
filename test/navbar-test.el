@@ -37,14 +37,14 @@
 	 (unless (memq buffer old-buffer-list)
 	   (kill-buffer buffer))))))
 
-(defmacro navbar-test-with-mode (&rest body)
-  (declare (indent 0) (debug t))
-  `(let ((old-mode (or navbar-mode -1)))
+(defmacro navbar-test-with-mode (mode &rest body)
+  (declare (indent 1) (debug t))
+  `(let* ((old-mode (or ,mode -1)))
      (unwind-protect
 	 (progn
-	   (navbar-mode 1)
+	   (,mode 1)
 	   ,@body)
-       (navbar-mode old-mode))))
+       (,mode old-mode))))
 
 (defmacro navbar-test-save-item-list (&rest body)
   (declare (indent 0) (debug t))
@@ -416,7 +416,7 @@
 ;;; Mode
 
 (ert-deftest navbar-mode/hooks ()
-  (navbar-test-with-mode
+  (navbar-test-with-mode navbar-mode
     (should (memq 'navbar-update after-make-frame-functions))
     (should (memq 'navbar-make-window after-make-frame-functions)))
   (should-not (memq 'navbar-update after-make-frame-functions))
@@ -428,7 +428,7 @@
 	  (frame2 (make-frame)))
       (unwind-protect
 	  (let (window1 window2)
-	    (navbar-test-with-mode
+	    (navbar-test-with-mode navbar-mode
 	      (should (setq window1 (navbar-window frame1)))
 	      (should (setq window2 (navbar-window frame2))))
 	    (should-not (window-valid-p window1))
@@ -437,14 +437,14 @@
 
 (unless noninteractive
   (ert-deftest navbar-mode/make-frame ()
-    (navbar-test-with-mode
+    (navbar-test-with-mode navbar-mode
       (let ((new-frame (make-frame)))
 	(unwind-protect
 	    (should (window-live-p (navbar-window new-frame)))
 	  (delete-frame new-frame))))))
 
 (ert-deftest navbar-mode/advices ()
-  (navbar-test-with-mode
+  (navbar-test-with-mode navbar-mode
     (should (and (ad-find-advice 'next-window 'around 'navbar-ignore)))
     (should (and (ad-find-advice 'window-list 'around 'navbar-ignore))))
   (should-not (and (ad-find-advice 'next-window 'around 'navbar-ignore)))
@@ -454,21 +454,21 @@
   (navbar-test-with-item-list
       (list (list :key t :value "foo"
 		  :initialize (lambda () (navbar-update nil t))))
-    (navbar-test-with-mode
+    (navbar-test-with-mode navbar-mode
       ;; Call `:initialize' function by `navbar-initialize'.
       ;; It is necessary to run `navbar-make-window' before that.
       )))
 
 (ert-deftest navbar-mode/should-update-after-initialize ()
   (navbar-test-with-item-list '((:key t :value "foo"))
-    (navbar-test-with-mode
+    (navbar-test-with-mode navbar-mode
       ;; It is necessary to `navbar-update' after `navbar-initialize'
       ;; to display static contents.
       (with-current-buffer (navbar-buffer)
 	(should (string= (buffer-string) "foo"))))))
 
 (ert-deftest navbar-mode/font-lock-keywords ()
-  (navbar-test-with-mode
+  (navbar-test-with-mode navbar-mode
     (should
      (member navbar-font-lock-keywords
 	     (cadr (assq 'emacs-lisp-mode font-lock-keywords-alist)))))
@@ -488,41 +488,34 @@
 (require 'navbarx-time)
 (ert-deftest navbarx-time/test ()
   (navbar-test-with-item-list '(navbarx-time)
-    (navbar-test-with-mode
-      (unwind-protect
-	  (progn
-	    (display-time-mode)
-	    (should-not (memq 'display-time-string global-mode-string))
-	    (should (memq #'navbarx-time-update display-time-hook))
-	    (should (navbar-item-value-get 'navbarx-time))
-	    (should (navbar-item-enabled-p 'navbarx-time)))
-	(display-time-mode -1)
-	(should-not (navbar-item-value-get 'navbarx-time))
-	(should-not (navbar-item-enabled-p 'navbarx-time))
-	(should-not (memq #'navarx-time-update display-time-hook))))))
+    (navbar-test-with-mode navbar-mode
+      (navbar-test-with-mode display-time-mode
+	(should-not (memq 'display-time-string global-mode-string))
+	(should (memq #'navbarx-time-update display-time-hook))
+	(should (navbar-item-value-get 'navbarx-time))
+	(should (navbar-item-enabled-p 'navbarx-time)))
+      (should-not (navbar-item-value-get 'navbarx-time))
+      (should-not (navbar-item-enabled-p 'navbarx-time))
+      (should-not (memq #'navarx-time-update display-time-hook)))))
 
 (defvar navbarx-elscreen)
+(defvar elscreen-mode)
 (defvar elscreen-screen-update-hook)
 (when (require 'elscreen nil t)
   (require 'navbarx-elscreen)
   (ert-deftest navbarx-elscreen/test ()
     (navbar-test-with-item-list '(navbarx-elscreen)
-      (navbar-test-with-mode
-	(unwind-protect
-	    (progn
-	      (elscreen-mode)
-	      (should-not (memq 'elscreen-tab-update
-				elscreen-screen-update-hook))
-	      (should (memq 'navbarx-elscreen-update
-			    elscreen-screen-update-hook))
-	      (should (navbar-item-value-get 'navbarx-elscreen))
-	      (should (navbar-item-enabled-p 'navbarx-elscreen)))
-	  (elscreen-mode -1)
-	  (should (memq 'elscreen-tab-update elscreen-screen-update-hook))
-	  (should-not (memq 'navbarx-elscreen-update
-			    elscreen-screen-update-hook))
-	  (should-not (navbar-item-value-get 'navbarx-elscreen))
-	  (should-not (navbar-item-enabled-p 'navbarx-elscreen)))))))
+      (navbar-test-with-mode navbar-mode
+	(navbar-test-with-mode elscreen-mode
+	  (should-not (memq 'elscreen-tab-update elscreen-screen-update-hook))
+	  (should (memq 'navbarx-elscreen-update elscreen-screen-update-hook))
+	  (should (navbar-item-value-get 'navbarx-elscreen))
+	  (should (navbar-item-enabled-p 'navbarx-elscreen)))
+	(should (memq 'elscreen-tab-update elscreen-screen-update-hook))
+	(should-not (memq 'navbarx-elscreen-update
+			  elscreen-screen-update-hook))
+	(should-not (navbar-item-value-get 'navbarx-elscreen))
+	(should-not (navbar-item-enabled-p 'navbarx-elscreen))))))
 
 (provide 'navbar-test)
 ;;; navbar-test.el ends here
