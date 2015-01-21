@@ -204,10 +204,15 @@
     (setq navbar-item-alist '((foo :value "foo")))
     (should (navbar-item-value-put 'foo "bar"))))
 
-(ert-deftest navbar-item-value-put/unchanged ()
+(ert-deftest navbar-item-value-put/unchanged-value ()
   (navbar-test-save-item-list
     (setq navbar-item-alist '((foo :value "foo")))
     (should-not (navbar-item-value-put 'foo "foo"))))
+
+(ert-deftest navbar-item-value-put/unchanged-symbol ()
+  (navbar-test-save-item-list
+    (setq navbar-item-alist '((foo :value "foo")))
+    (should-not (navbar-item-value-put 'foo 'unchanged))))
 
 (ert-deftest navbar-item-value-put/nil ()
   (navbar-test-save-item-list

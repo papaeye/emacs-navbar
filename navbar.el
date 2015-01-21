@@ -187,11 +187,14 @@ DOC is a doc string for variable ITEM.
 	 ,doc))))
 
 (defun navbar-item-value-put (key new-value)
-  "Put KEY's `:value' property value to NEW-VALUE.
-Return non-`nil', if NEW-VALUE is not same as existing value."
+  "Change KEY's value to NEW-VALUE
+unless NEW-VALUE is `unchanged' or same as existing value.
+
+Return non-nil if the value of :value property is changed."
   (let* ((item (cdr (assq key navbar-item-alist)))
 	 (old-value (plist-get item :value)))
-    (unless (equal new-value old-value)
+    (unless (or (eq new-value 'unchanged)
+		(equal new-value old-value))
       (plist-put item :value new-value))))
 
 (defun navbar-item-value-get (key)
