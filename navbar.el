@@ -224,13 +224,8 @@ Return non-`nil', if NEW-VALUE is not same as existing value."
       (erase-buffer)
       (insert (funcall navbar-serialize-function)))))
 
-(defun navbar-update (frame &optional key)
-  "Update navbar of FRAME.
-If KEY is `nil', all items are updated by their `:get' functions."
-  (unless key
-    (dolist (item (mapcar 'cdr navbar-item-alist))
-      (when (plist-get item :get)
-	(funcall (plist-get item :get)))))
+(defun navbar-update (frame &optional _key)
+  "Update navbar of FRAME."
   (funcall navbar-display-function (navbar-buffer frame)))
 
 (defun navbar-initialize ()

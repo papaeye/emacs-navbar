@@ -238,25 +238,6 @@
     (navbar-initialize)
     (should (string= (navbar-serialize) "foo bar baz"))))
 
-;;;; `navbar-update'
-
-(ert-deftest navbar-update/should-run-get-functions-if-key-is-nil ()
-  (navbar-test-save-buffer-list
-    (let ((navbar-display-function #'ignore))
-      (navbar-test-with-item-list
-	  '((:key foo :value "foo")
-	    (:key bar :value "bar" :get (lambda ()
-					  (navbar-item-value-put
-					   'bar "baz"))))
-	(navbar-initialize)
-	(save-window-excursion
-	  (navbar-make-window)
-	  (navbar-update (selected-frame))
-	  (should (string= (navbar-item-value-get 'foo)
-			   "foo"))
-	  (should (string= (navbar-item-value-get 'bar)
-			   "baz")))))))
-
 ;;;; `navbar-initialize'
 
 (ert-deftest navbar-initialize/raw-list ()
