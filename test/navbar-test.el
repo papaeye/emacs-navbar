@@ -521,20 +521,27 @@
 	(should-not (memq #'navarx-time-update display-time-hook))))))
 
 (defvar navbarx-elscreen)
+(defvar elscreen-screen-update-hook)
 (when (require 'elscreen nil t)
   (require 'navbarx-elscreen)
   (ert-deftest navbarx-elscreen/test ()
-    (should (= (length navbarx-elscreen) 12))
-    (should (eq (plist-get navbarx-elscreen :key) 'navbarx-elscreen))
-    (should (eq (plist-get navbarx-elscreen :enable) 'elscreen-mode))
-    (should (eq (plist-get navbarx-elscreen :get) 'navbarx-elscreen-get))
-    (should (eq (plist-get navbarx-elscreen :initialize)
-		'navbarx-elscreen-on))
-    (should (eq (plist-get navbarx-elscreen :deinitialize)
-		'navbarx-elscreen-off))
-    (should (equal (plist-get navbarx-elscreen :hooks)
-		   '((elscreen-mode-on-hook . navbarx-elscreen-on)
-		     (elscreen-mode-off-hook . navbarx-elscreen-off))))))
+    (navbar-test-with-item-list '(navbarx-elscreen)
+      (navbar-test-with-mode
+	(unwind-protect
+	    (progn
+	      (elscreen-mode)
+	      (should-not (memq 'elscreen-tab-update
+				elscreen-screen-update-hook))
+	      (should (memq 'navbarx-elscreen-update
+			    elscreen-screen-update-hook))
+	      (should (navbar-item-value-get 'navbarx-elscreen))
+	      (should (navbar-item-enabled-p 'navbarx-elscreen)))
+	  (elscreen-mode -1)
+	  (should (memq 'elscreen-tab-update elscreen-screen-update-hook))
+	  (should-not (memq 'navbarx-elscreen-update
+			    elscreen-screen-update-hook))
+	  (should-not (navbar-item-value-get 'navbarx-elscreen))
+	  (should-not (navbar-item-enabled-p 'navbarx-elscreen)))))))
 
 (provide 'navbar-test)
 ;;; navbar-test.el ends here
