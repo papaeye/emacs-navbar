@@ -65,8 +65,7 @@
   (declare (indent 1) (debug t))
   `(let* ((temp-item ,item)
 	  (temp-item-name (symbol-name temp-item))
-	  (temp-item-update (intern (concat temp-item-name "-update")))
-	  (navbar-display-function (lambda (_buffer) "displayed")))
+	  (temp-item-update (intern (concat temp-item-name "-update"))))
      (unwind-protect
 	 (progn ,@body)
        (makunbound temp-item)
@@ -136,14 +135,18 @@
 				:get (lambda () "new-value"))
     (navbar-test-save-item-list
       (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
-      (should (string= (navbarx-foo-update) "displayed")))))
+      (navbar-test-with-stub-display
+	(navbarx-foo-update)
+	(should displayed)))))
 
 (ert-deftest navbar-define-item/item-update/not-displayed-if-not-updated ()
   (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
 				:get (lambda () nil))
     (navbar-test-save-item-list
       (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
-      (should-not (navbarx-foo-update)))))
+      (navbar-test-with-stub-display
+	(navbarx-foo-update)
+	(should-not displayed)))))
 
 (ert-deftest navbar-define-item/string-item ()
   (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
