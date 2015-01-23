@@ -85,7 +85,9 @@
 (defmacro navbar-test-with-stub-display (&rest body)
   (declare (indent 0) (debug t))
   `(let* (displayed
-	  (navbar-display-function (lambda (_buffer) (setq displayed t))))
+	  (navbar-display-function
+	   (lambda (_buffer)
+	     (setq displayed (funcall navbar-serialize-function)))))
      (progn ,@body)))
 
 (defvar navbar-test-mode-on-hook)
