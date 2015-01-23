@@ -228,8 +228,13 @@ the :get function is neither symbol `unchanged' nor existing value."
   "Update navbar of FRAME."
   (funcall navbar-display-function (navbar-buffer frame)))
 
+(defun navbar--funcall-with-no-display (function &rest arguments)
+  (let ((navbar-display-function #'ignore))
+    (apply #'funcall function arguments)))
+
 (defun navbar-initialize ()
-  "Initialize `navbar-item-alist' and add functions to hooks."
+  "Initialize `navbar-item-alist' and add functions to hooks,
+Also, this runs :initialize functions without updating the navbar buffer."
   (navbar-deinitialize)
   (setq navbar-item-alist nil)
   (dolist (item (nreverse navbar-item-list))
@@ -247,17 +252,18 @@ the :get function is neither symbol `unchanged' nor existing value."
       (dolist (hook hooks)
 	(add-hook (car hook) (cdr hook)))
       (when (and func (navbar--item-enabled-p value))
-	(funcall func)))))
+	(navbar--funcall-with-no-display func)))))
 
 (defun navbar-deinitialize ()
-  "Remove functions from hooks and clean up `navbar-item-alist'."
+  "Remove functions from hooks and clean up `navbar-item-alist'.
+Also, this runs :deinitialize functions without updating the navbar buffer."
   (dolist (item (mapcar 'cdr navbar-item-alist))
     (let ((hooks (plist-get item :hooks))
 	  (func (plist-get item :deinitialize)))
       (dolist (hook hooks)
 	(remove-hook (car hook) (cdr hook)))
       (when func
-	(funcall func))))
+	(navbar--funcall-with-no-display func))))
   (setq navbar-item-alist nil))
 
 ;;; GUI

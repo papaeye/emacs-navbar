@@ -298,6 +298,14 @@
       (navbar-initialize)
       (should-not (get 'navbar-test--mode-on-func 'called)))))
 
+(ert-deftest navbar-initialize/dont-display-by-:initialize ()
+  (let* ((display-func (lambda (_buffer) (put 'display-func 'called t)))
+	 (navbar-display-function display-func))
+    (navbar-test-with-item-list
+	'((:key t :initialize (lambda () (navbar-update nil))))
+      (navbar-initialize))
+    (should-not (get 'display-func 'called))))
+
 (ert-deftest navbar-initialize/deinitialize ()
   (navbar-test-with-item-list `((:key t :hooks ,navbar-test--mode-hooks))
     (navbar-test-save-test-mode
@@ -329,6 +337,15 @@
       (navbar-initialize)
       (navbar-deinitialize)
       (should (get 'navbar-test--mode-off-func 'called)))))
+
+(ert-deftest navbar-deinitialize/dont-display-by-:deinitialize ()
+  (let* ((display-func (lambda (_buffer) (put 'display-func 'called t)))
+	 (navbar-display-function display-func))
+    (navbar-test-with-item-list
+	'((:key t :deinitialize (lambda () (navbar-update nil))))
+      (navbar-initialize)
+      (navbar-deinitialize))
+    (should-not (get 'display-func 'called))))
 
 ;;; GUI
 
