@@ -365,7 +365,6 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
   (add-hook 'after-make-frame-functions #'navbar-update)
   (add-hook 'after-make-frame-functions #'navbar-make-window)
   (mapc #'navbar-make-window (frame-list))
-  ;; TODO: Make `navbar-initialize' aware of frames.
   (navbar-initialize)
   (mapc #'navbar-update (frame-list))
   (font-lock-add-keywords 'emacs-lisp-mode navbar-font-lock-keywords))
