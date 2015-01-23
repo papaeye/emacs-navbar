@@ -568,7 +568,9 @@
 	  (should (navbar-item-enabled-p 'navbarx-elscreen))
 	  ;; Successive call doesn't update navbar buffer
 	  (should (eq (navbarx-elscreen-get) 'unchanged))
-	  (should-not (navbarx-elscreen-update)))
+	  (should-not (navbarx-elscreen-update))
+	  ;; But force get should work
+	  (should-not (eq (navbarx-elscreen-get 'force) 'unchanged)))
 	(should (memq 'elscreen-tab-update elscreen-screen-update-hook))
 	(should-not (memq 'navbarx-elscreen-update
 			  elscreen-screen-update-hook))

@@ -57,9 +57,11 @@
   (let ((screen (navbar-property-at pos 'navbarx-elscreen-screen window)))
     (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
 
-(defun navbarx-elscreen-get ()
+(defun navbarx-elscreen-get (&optional force)
   (if (and (not (window-minibuffer-p))
-	   (elscreen-screen-modified-p 'navbarx-elscreen-get))
+	   ;; The order is significant
+	   (or (elscreen-screen-modified-p 'navbarx-elscreen-get)
+	       force))
       (navbarx-elscreen-get1)
     'unchanged))
 
@@ -115,8 +117,12 @@
   ;; hook functions of `elscreen-screen-update-hook' have already run
   ;; by `elscreen-make-frame-confs' before adding `navbarx-elscreen-update'
   ;; to `elscreen-screen-update-hook' by `navbarx-elscreen-on',
-  ;; thus it is necessary to run `elscreen-tab-update' here.
-  (navbarx-elscreen-update))
+  ;; thus it is necessary to run `navbarx-elscreen-update' here.
+  ;;
+  ;; Moreover, successive call of `navbarx-elscreen-get' returns `unchanged'
+  ;; because of `elscreen-screen-modified-p', thus it is necessary to
+  ;; get ElScreen tabs forcibly.
+  (navbarx-elscreen-update 'force))
 
 (defun navbarx-elscreen-off ()
   (navbarx-elscreen-update)
