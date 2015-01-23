@@ -167,8 +167,8 @@ DOC is a doc string for variable ITEM.
 
     `(progn
        ,(when getter
-	  `(defun ,item-update ()
-	     (when (navbar-item-update ,key)
+	  `(defun ,item-update (&optional force)
+	     (when (navbar-item-update ,key force)
 	       (navbar-update nil ,key))))
        (defvar ,item (list :key ,key :enable ,enable
 			   ,@get

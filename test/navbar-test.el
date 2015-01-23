@@ -150,6 +150,15 @@
 	(navbarx-foo-update)
 	(should-not displayed)))))
 
+(ert-deftest navbar-define-item/item-update/displayed-with-force-arg ()
+  (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
+				:get (lambda (&optional force) force))
+    (navbar-test-save-item-list
+      (setq navbar-item-alist `((navbarx-foo ,@navbarx-foo)))
+      (navbar-test-with-stub-display
+	(navbarx-foo-update "foo")
+	(should (string= displayed "foo"))))))
+
 (ert-deftest navbar-define-item/string-item ()
   (navbar-test-with-temp-item (navbar-define-item navbarx-foo nil
 				:enable navbar-version
