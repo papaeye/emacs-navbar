@@ -83,6 +83,12 @@
        (put 'navbar-test--mode-on-func 'called nil)
        (put 'navbar-test--mode-off-func 'called nil))))
 
+(defmacro navbar-test-with-stub-display (&rest body)
+  (declare (indent 0) (debug t))
+  `(let* (displayed
+	  (navbar-display-function (lambda (_buffer) (setq displayed t))))
+     (progn ,@body)))
+
 (defvar navbar-test-mode-on-hook)
 (defvar navbar-test-mode-off-hook)
 (define-minor-mode navbar-test-mode nil
@@ -299,12 +305,11 @@
       (should-not (get 'navbar-test--mode-on-func 'called)))))
 
 (ert-deftest navbar-initialize/dont-display-by-:initialize ()
-  (let* ((display-func (lambda (_buffer) (put 'display-func 'called t)))
-	 (navbar-display-function display-func))
+  (navbar-test-with-stub-display
     (navbar-test-with-item-list
 	'((:key t :initialize (lambda () (navbar-update))))
       (navbar-initialize))
-    (should-not (get 'display-func 'called))))
+    (should-not displayed)))
 
 (ert-deftest navbar-initialize/deinitialize ()
   (navbar-test-with-item-list `((:key t :hooks ,navbar-test--mode-hooks))
@@ -339,13 +344,12 @@
       (should (get 'navbar-test--mode-off-func 'called)))))
 
 (ert-deftest navbar-deinitialize/dont-display-by-:deinitialize ()
-  (let* ((display-func (lambda (_buffer) (put 'display-func 'called t)))
-	 (navbar-display-function display-func))
+  (navbar-test-with-stub-display
     (navbar-test-with-item-list
 	'((:key t :deinitialize (lambda () (navbar-update))))
       (navbar-initialize)
       (navbar-deinitialize))
-    (should-not (get 'display-func 'called))))
+    (should-not displayed)))
 
 ;;; GUI
 
