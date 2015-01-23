@@ -192,8 +192,9 @@ DOC is a doc string for variable ITEM.
   (or (not (plist-member item :enable))
       (symbol-value (plist-get item :enable))))
 
-(defun navbar-item-update (key)
+(defun navbar-item-update (key &optional force)
   "Update KEY's value by running the value of :get property if available.
+If optional FORCE argument is non-nil, it is passed to :get function.
 
 Return non-nil if the item has :get property and the return value of
 the :get function is neither symbol `unchanged' nor existing value."
@@ -203,7 +204,9 @@ the :get function is neither symbol `unchanged' nor existing value."
     (when getter
       (setq old-value (plist-get item :value))
       (setq new-value (and (navbar--item-enabled-p item)
-			   (funcall getter)))
+			   (if force
+			       (funcall getter force)
+			     (funcall getter))))
       (unless (or (eq new-value 'unchanged)
 		  (equal new-value old-value))
 	(plist-put item :value new-value)))))

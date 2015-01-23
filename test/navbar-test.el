@@ -215,6 +215,20 @@
     (should-not (navbar-item-update 'key))
     (should (string= (navbar-item-value-get 'key) "old-value"))))
 
+(ert-deftest navbar-item-update/enabled--with-force-arg ()
+  (navbar-test-save-item-list
+    (setq navbar-item-alist '((key :get (lambda (&optional force) force)
+				   :value "old-value")))
+    (should (navbar-item-update 'key "force arg"))
+    (should (string= (navbar-item-value-get 'key) "force arg"))))
+
+(ert-deftest navbar-item-update/enabled--with-no-force-arg ()
+  (navbar-test-save-item-list
+    (setq navbar-item-alist '((key :get (lambda (&optional force) force)
+				   :value "old-value")))
+    (should (navbar-item-update 'key))
+    (should-not (navbar-item-value-get 'key))))
+
 (ert-deftest navbar-item-update/disabled--put-nil--change-value ()
   (navbar-test-save-item-list
     (setq navbar-item-alist '((key :enable nil
