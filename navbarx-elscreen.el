@@ -111,9 +111,11 @@
 (defun navbarx-elscreen-on ()
   (remove-hook 'elscreen-screen-update-hook 'elscreen-tab-update)
   (add-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update)
-  ;; This is necessary to initialize the navbar buffer
-  ;; when `elscreen-mode' is enabled after `navbar-mode' is enabled,
-  ;; since `elscreen-make-frame-confs' is run before `navbarx-elscreen-on'.
+  ;; When `elscreen-mode' is enabled after `navbar-mode' is enabled,
+  ;; hook functions of `elscreen-screen-update-hook' have already run
+  ;; by `elscreen-make-frame-confs' before adding `navbarx-elscreen-update'
+  ;; to `elscreen-screen-update-hook' by `navbarx-elscreen-on',
+  ;; thus it is necessary to run `elscreen-tab-update' here.
   (navbarx-elscreen-update))
 
 (defun navbarx-elscreen-off ()
