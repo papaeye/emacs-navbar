@@ -302,7 +302,7 @@
   (let* ((display-func (lambda (_buffer) (put 'display-func 'called t)))
 	 (navbar-display-function display-func))
     (navbar-test-with-item-list
-	'((:key t :initialize (lambda () (navbar-update nil))))
+	'((:key t :initialize (lambda () (navbar-update))))
       (navbar-initialize))
     (should-not (get 'display-func 'called))))
 
@@ -342,7 +342,7 @@
   (let* ((display-func (lambda (_buffer) (put 'display-func 'called t)))
 	 (navbar-display-function display-func))
     (navbar-test-with-item-list
-	'((:key t :deinitialize (lambda () (navbar-update nil))))
+	'((:key t :deinitialize (lambda () (navbar-update))))
       (navbar-initialize)
       (navbar-deinitialize))
     (should-not (get 'display-func 'called))))

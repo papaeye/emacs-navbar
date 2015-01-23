@@ -224,7 +224,7 @@ the :get function is neither symbol `unchanged' nor existing value."
       (erase-buffer)
       (insert (funcall navbar-serialize-function)))))
 
-(defun navbar-update (frame &optional _key)
+(defun navbar-update (&optional frame _key)
   "Update navbar of FRAME."
   (funcall navbar-display-function (navbar-buffer frame)))
 
