@@ -339,6 +339,11 @@
       (navbar-initialize))
     (should-not displayed)))
 
+(ert-deftest navbar-initialize/should-keep-navbar-item-list ()
+  (navbar-test-with-item-list '((:key foo) (:key bar))
+    (navbar-initialize)
+    (should (equal navbar-item-list '((:key foo) (:key bar))))))
+
 (ert-deftest navbar-initialize/deinitialize ()
   (navbar-test-with-item-list `((:key t :hooks ,navbar-test--mode-hooks))
     (navbar-test-save-test-mode

@@ -235,27 +235,36 @@ the :get function is neither symbol `unchanged' nor existing value."
   (let ((navbar-display-function #'ignore))
     (apply #'funcall function arguments)))
 
+(defun navbar--run-initialize ()
+  (let (func)
+    (dolist (item (mapcar #'cdr navbar-item-alist))
+      (setq func (plist-get item :initialize))
+      (when (and func (navbar--item-enabled-p item))
+	(navbar--funcall-with-no-display func)))))
+
 (defun navbar-initialize ()
   "Initialize `navbar-item-alist' and add functions to hooks,
 Also, this runs :initialize functions without updating the navbar buffer."
   (navbar-deinitialize)
-  (setq navbar-item-alist nil)
-  (dolist (item (nreverse navbar-item-list))
-    (when (symbolp item)
-      (unless (boundp item)
-	(require item nil t))
-      (setq item (symbol-value item)))
-    (when (stringp item)
-      (setq item (list :key t :value item)))
-    (let ((key (plist-get item :key))
-	  (value (copy-tree item))
-	  (func (plist-get item :initialize))
-	  (hooks (plist-get item :hooks)))
-      (push (cons key value) navbar-item-alist)
-      (dolist (hook hooks)
-	(add-hook (car hook) (cdr hook)))
-      (when (and func (navbar--item-enabled-p value))
-	(navbar--funcall-with-no-display func)))))
+  (let (item-alist
+	key value hooks)
+    (dolist (item navbar-item-list)
+      (when (symbolp item)
+	(unless (boundp item)
+	  (require item nil t))
+	(setq item (symbol-value item)))
+      (when (stringp item)
+	(setq item (list :key t :value item)))
+
+      (setq value (copy-tree item))
+      (setq key (plist-get value :key))
+      (setq hooks (plist-get value :hooks))
+
+      (push (cons key value) item-alist)
+      (dolist (pair hooks)
+	(add-hook (car pair) (cdr pair))))
+    (setq navbar-item-alist (nreverse item-alist))
+    (navbar--run-initialize)))
 
 (defun navbar-deinitialize ()
   "Remove functions from hooks and clean up `navbar-item-alist'.
