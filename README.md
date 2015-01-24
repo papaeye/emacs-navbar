@@ -27,6 +27,7 @@ Evaluate the following code.
 
 ```elisp
 (require 'navbar)
+(require 'navbarx-version)
 (setq navbar-item-list '(navbarx-version "Hello, world!"))
 (navbar-mode)
 ```
