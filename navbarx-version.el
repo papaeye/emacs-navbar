@@ -27,7 +27,7 @@
 (require 'navbar)
 
 (defface navbarx-version
-  '((t :foreground "#dc322f" :inverse-video t))
+  '((t :inherit navbar-item))
   "Face of `navbarx-version'."
   :group 'navbar)
 
