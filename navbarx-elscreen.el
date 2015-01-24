@@ -129,6 +129,7 @@
   (add-hook 'elscreen-screen-update-hook 'elscreen-tab-update)
   (remove-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update))
 
+;;;###autoload (autoload 'navbarx-elscreen "navbarx-elscreen")
 (navbar-define-item navbarx-elscreen
   "Navbar item for ElScreen support."
   :get #'navbarx-elscreen-get

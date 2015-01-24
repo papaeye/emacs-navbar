@@ -49,6 +49,7 @@
   (navbarx-time-update)
   (remove-hook 'display-time-hook #'navbarx-time-update))
 
+;;;###autoload (autoload 'navbarx-time "navbarx-time")
 (navbar-define-item navbarx-time
   "Navbar item for `display-time-mode' support."
   :get #'navbarx-time-get

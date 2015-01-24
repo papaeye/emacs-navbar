@@ -31,6 +31,7 @@
   "Face of `navbarx-version'."
   :group 'navbar)
 
+;;;###autoload (autoload 'navbarx-version "navbarx-version")
 (navbar-define-item navbarx-version
   "Navbar item for `navbar-version'."
   :value (propertize
