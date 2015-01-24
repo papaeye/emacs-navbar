@@ -30,7 +30,7 @@
 (require 'elscreen)
 (require 'navbar)
 
-(defun navbarx-elscreen--screen-command (command)
+(defun navbarx-elscreen-screen-command (command)
   (lambda (event)
     (interactive "e")
     (let* ((position (event-start event))
@@ -39,23 +39,23 @@
 	   (screen (navbar-property-at point 'navbarx-elscreen-screen window)))
       (funcall command screen))))
 
-(defvar navbarx-elscreen--kill-screen-map
+(defun navbarx-elscreen-kill-screen-help (window _object pos)
+  (let ((screen (navbar-property-at pos 'navbarx-elscreen-screen window)))
+    (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
+
+(defvar navbarx-elscreen-kill-screen-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<mouse-1>") (navbarx-elscreen--screen-command
+    (define-key map (kbd "<mouse-1>") (navbarx-elscreen-screen-command
 				       'elscreen-kill))
-    (define-key map (kbd "M-<mouse-1>") (navbarx-elscreen--screen-command
+    (define-key map (kbd "M-<mouse-1>") (navbarx-elscreen-screen-command
 					 'elscreen-kill-screen-and-buffers))
     map))
 
-(defvar navbarx-elscreen--tab-body-map
+(defvar navbarx-elscreen-tab-body-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<mouse-1>") (navbarx-elscreen--screen-command
+    (define-key map (kbd "<mouse-1>") (navbarx-elscreen-screen-command
 				       'elscreen-goto))
     map))
-
-(defun navbarx-elscreen--kill-screen-help (window _object pos)
-  (let ((screen (navbar-property-at pos 'navbarx-elscreen-screen window)))
-    (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
 
 (defun navbarx-elscreen-get (&optional force)
   (if (and (not (window-minibuffer-p))
@@ -75,8 +75,8 @@
 		     'display '(space :width 0.5)))
 	(kill-screen (propertize
 		      "[\u00d7]"
-		      'keymap navbarx-elscreen--kill-screen-map
-		      'help-echo 'navbarx-elscreen--kill-screen-help)))
+		      'keymap navbarx-elscreen-kill-screen-map
+		      'help-echo 'navbarx-elscreen-kill-screen-help)))
     (mapcar
      (lambda (screen)
        (let ((screen-name (cdr (assq screen screen-to-name-alist)))
@@ -97,7 +97,7 @@
 		  half-space
 		  screen-name)
 		 'help-echo screen-name
-		 'keymap navbarx-elscreen--tab-body-map)
+		 'keymap navbarx-elscreen-tab-body-map)
 		(when (eq elscreen-tab-display-kill-screen 'right)
 		  (concat half-space kill-screen))))
 	 (concat
