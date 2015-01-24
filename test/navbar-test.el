@@ -297,11 +297,6 @@
     (navbar-initialize)
     (should (equal navbar-item-alist `((t :key t :value "Hello, world!"))))))
 
-(ert-deftest navbar-initialize/autoload ()
-  (navbar-test-with-item-list '(navbarx-version)
-    (navbar-initialize)
-    (should (fboundp 'navbarx-version))))
-
 (ert-deftest navbar-initialize/order ()
   (navbar-test-with-item-list '((:key t :value "foo")
 				(:key bar :value "bar"))
