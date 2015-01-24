@@ -258,8 +258,7 @@ the :get function is neither symbol `unchanged' nor existing value."
   "Initialize `navbar-item-alist' and add functions to hooks,
 Also, this runs :initialize functions without updating the navbar buffer."
   (navbar-deinitialize)
-  (let (item-alist
-	key value hooks)
+  (let (item-alist)
     (dolist (item navbar-item-list)
       (when (symbolp item)
 	(unless (fboundp item)
@@ -267,14 +266,11 @@ Also, this runs :initialize functions without updating the navbar buffer."
 	(setq item (funcall item)))
       (when (stringp item)
 	(setq item (list :key t :value item)))
-
-      (setq value (copy-tree item))
-      (setq key (plist-get value :key))
-      (setq hooks (plist-get value :hooks))
-
-      (push (cons key value) item-alist)
-      (dolist (pair hooks)
-	(add-hook (car pair) (cdr pair))))
+      (let ((key (plist-get item :key))
+	    (hooks (plist-get item :hooks)))
+	(push (cons key item) item-alist)
+	(dolist (pair hooks)
+	  (add-hook (car pair) (cdr pair)))))
     (setq navbar-item-alist (nreverse item-alist))
     (navbar--run-initialize)))
 
