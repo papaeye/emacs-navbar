@@ -41,7 +41,9 @@
 
 (defun navbarx-elscreen-kill-screen-help (window _object pos)
   (let ((screen (navbar-property-at pos 'navbarx-elscreen-screen window)))
-    (format "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it" screen screen)))
+    (format
+     "mouse-1: kill screen %d, M-mouse-1: kill screen %d and buffers on it"
+     screen screen)))
 
 (defvar navbarx-elscreen-kill-screen-map
   (let ((map (make-sparse-keymap)))
@@ -57,26 +59,25 @@
 				       'elscreen-goto))
     map))
 
+(defvar navbarx-elscreen-kill-screen
+  (concat (propertize "[\u00d7]"
+		      'keymap navbarx-elscreen-kill-screen-map
+		      'help-echo 'navbarx-elscreen-kill-screen-help)
+	  ;; Reset the keymap for the right item
+	  (propertize " " 'display '(space :width 0))))
+
 (defun navbarx-elscreen-get (&optional force)
   (if (and (not (window-minibuffer-p))
 	   ;; The order is significant
 	   (or (elscreen-screen-modified-p 'navbarx-elscreen-get)
 	       force))
-      (navbarx-elscreen-get1)
+      (navbarx-elscreen--get)
     'unchanged))
 
-(defun navbarx-elscreen-get1 ()
+(defun navbarx-elscreen--get ()
   (let ((screen-list (sort (elscreen-get-screen-list) '<))
 	(screen-to-name-alist (elscreen-get-screen-to-name-alist))
-	(current-screen (elscreen-get-current-screen))
-	(half-space (propertize
-		     " "
-		     'keymap navbar-base-map
-		     'display '(space :width 0.5)))
-	(kill-screen (propertize
-		      "[\u00d7]"
-		      'keymap navbarx-elscreen-kill-screen-map
-		      'help-echo 'navbarx-elscreen-kill-screen-help)))
+	(current-screen (elscreen-get-current-screen)))
     (mapcar
      (lambda (screen)
        (let ((screen-name (cdr (assq screen screen-to-name-alist)))
@@ -84,29 +85,29 @@
 			   'elscreen-tab-current-screen-face
 			 'elscreen-tab-other-screen-face))
 	     tab-string)
+
 	 (setq tab-string
 	       (concat
 		(when (memq elscreen-tab-display-kill-screen '(left t))
-		  kill-screen)
-		half-space
+		  navbarx-elscreen-kill-screen)
+		navbar-item-padding
 		(propertize
 		 (concat
 		  (when (< screen 10)
 		    (number-to-string screen))
 		  (elscreen-status-label screen)
-		  half-space
+		  navbar-item-padding
 		  screen-name)
 		 'help-echo screen-name
 		 'keymap navbarx-elscreen-tab-body-map)
+		navbar-item-padding
 		(when (eq elscreen-tab-display-kill-screen 'right)
-		  (concat half-space kill-screen))))
-	 (concat
-	  (propertize tab-string
-		      'face tab-face
-		      'pointer 'hand
-		      'navbarx-elscreen-screen screen)
-	  ;; Reset the keymap for the right item
-	  (propertize " " 'display '(space :width 0)))))
+		  navbarx-elscreen-kill-screen)))
+
+	 (propertize tab-string
+		     'face tab-face
+		     'pointer 'hand
+		     'navbarx-elscreen-screen screen)))
      screen-list)))
 
 (defun navbarx-elscreen-on ()
