@@ -27,9 +27,16 @@
 (require 'time)
 (require 'navbar)
 
+(defface navbarx-time
+  '((t :inherit navbar-item))
+  "Face of `navbarx-time'."
+  :group 'navbar)
+
 (defun navbarx-time-get ()
   (and display-time-string
-       (substring-no-properties display-time-string)))
+       (propertize
+	(substring-no-properties display-time-string)
+	'face 'navbarx-time)))
 
 (defun navbarx-time-on ()
   (setq global-mode-string
