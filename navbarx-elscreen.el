@@ -97,8 +97,7 @@
 		  half-space
 		  screen-name)
 		 'help-echo screen-name
-		 'keymap navbarx-elscreen--tab-body-map
-		 'navbar-truncate t)
+		 'keymap navbarx-elscreen--tab-body-map)
 		(when (eq elscreen-tab-display-kill-screen 'right)
 		  (concat half-space kill-screen))))
 	 (concat
