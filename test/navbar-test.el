@@ -390,6 +390,7 @@
 			       (navbar-buffer-name new-frame)))
 	(delete-frame new-frame)))))
 
+(defvar buffer-face-mode-face)
 (ert-deftest navbar-buffer-create/create ()
   (navbar-test-save-buffer-list
     (let ((buffer (navbar-buffer-create)))
@@ -400,7 +401,8 @@
 	(should-not cursor-type)
 	(should truncate-lines)
 	(should (eq window-size-fixed 'height))
-	(should (eq (car (current-active-maps)) navbar-base-map))))))
+	(should (eq (car (current-active-maps)) navbar-base-map))
+	(should (eq buffer-face-mode-face 'navbar))))))
 
 (ert-deftest navbar-buffer-create/existing-buffer ()
   (navbar-test-save-buffer-list
