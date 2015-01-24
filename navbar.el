@@ -95,11 +95,11 @@ It is necessary to run `navbar-initialize' to reflect the change of
 (defmacro navbar-define-item (item doc &rest args)
   "Define a navbar item ITEM.
 A navbar item is a plain property list.
-This macro defines a variable ITEM whose value is the property list.
+This macro defines a function ITEM which returns a property list.
 If `:get' property described below is supplied in ARGS, this macro also
 defines a function `ITEM-update' which updates the navbar buffer cleverly.
 
-DOC is a doc string for variable ITEM.
+DOC is a doc string for function ITEM.
 
 :enable
 	VALUE should be a symbol of a variable.
@@ -181,13 +181,14 @@ DOC is a doc string for variable ITEM.
 	  `(defun ,item-update (&optional force)
 	     (when (navbar-item-update ,key force)
 	       (navbar-update nil ,key))))
-       (defvar ,item (list :key ,key :enable ,enable
-			   ,@get
-			   ,@initialize
-			   ,@deinitialize
-			   ,@hooks
-			   ,@(nreverse extra-keywords))
-	 ,doc))))
+       (defun ,item ()
+	 ,doc
+	 (list :key ,key :enable ,enable
+	       ,@get
+	       ,@initialize
+	       ,@deinitialize
+	       ,@hooks
+	       ,@(nreverse extra-keywords))))))
 
 (defun navbar-item-value-get (key)
   "Return KEY's `:value' property value."
@@ -261,9 +262,9 @@ Also, this runs :initialize functions without updating the navbar buffer."
 	key value hooks)
     (dolist (item navbar-item-list)
       (when (symbolp item)
-	(unless (boundp item)
+	(unless (fboundp item)
 	  (require item nil t))
-	(setq item (symbol-value item)))
+	(setq item (funcall item)))
       (when (stringp item)
 	(setq item (list :key t :value item)))
 
