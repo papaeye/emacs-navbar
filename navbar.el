@@ -264,7 +264,7 @@ Also, this runs :initialize functions without updating the navbar buffer."
   (navbar-deinitialize)
   (let (item-alist)
     (dolist (item navbar-item-list)
-      (when (symbolp item)
+      (when (functionp item)
 	(setq item (funcall item)))
       (when (stringp item)
 	(setq item (list :key t :value item)))
