@@ -96,20 +96,20 @@ It is necessary to run `navbar-initialize' to reflect the change of
   "Define a navbar item ITEM.
 A navbar item is a plain property list.
 This macro defines a function ITEM which returns a property list.
-If `:get' property described below is supplied in ARGS, this macro also
-defines a function `ITEM-update' which updates the navbar buffer cleverly.
+If :get property described below is supplied in ARGS, this macro also
+defines a function ITEM-update which updates the navbar buffer cleverly.
 
 DOC is a doc string for function ITEM.
 
 :enable
 	VALUE should be a symbol of a variable.
-	If the symbol value is `nil', the navbar item is not displayed.
+	If the symbol value is nil, the navbar item is not displayed.
 :get	VALUE should be a function which returns the current value of
 	the navbar item.
 	It should return symbol `unchanged' if the value is not updated.
 :initialize
 	VALUE should be a function which is run by `navbar-initialize'
-	if ENABLE is non-`nil' at that time.
+	if ENABLE is non-nil at that time.
 :deinitialize
 	VALUE should be a function which is run by `navbar-deinitialize'.
 :hooks	VALUE should be a list of cons:
@@ -191,12 +191,12 @@ DOC is a doc string for function ITEM.
 	       ,@(nreverse extra-keywords))))))
 
 (defun navbar-item-value-get (key)
-  "Return KEY's `:value' property value."
+  "Return KEY's :value property value."
   (plist-get (cdr (assq key navbar-item-alist))
 	     :value))
 
 (defun navbar-item-enabled-p (key)
-  "Return non-`nil' if KEY's item is enabled."
+  "Return non-nil if KEY's item is enabled."
   (navbar--item-enabled-p
    (cdr (assq key navbar-item-alist))))
 
