@@ -54,6 +54,12 @@ It is necessary to run `navbar-initialize' to reflect the change of
   :type 'string
   :group 'navbar)
 
+(defcustom navbar-item-padding
+  (propertize " " 'display '(space :width 0.5))
+  "String to usable to pad a navbar item."
+  :type 'string
+  :group 'navbar)
+
 (defcustom navbar-serialize-function #'navbar-serialize
   "Function to convert `navbar-item-alist' to a string."
   :type 'function
