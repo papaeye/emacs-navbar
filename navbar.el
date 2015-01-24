@@ -64,6 +64,11 @@ It is necessary to run `navbar-initialize' to reflect the change of
   :type 'function
   :group 'navbar)
 
+(defface navbar-item
+  '((t :foreground "#eee8d5" :background "#b58900"))
+  "Default face of the navbar item."
+  :group 'navbar)
+
 ;;; Utilities
 
 (defconst navbar-font-lock-keywords
