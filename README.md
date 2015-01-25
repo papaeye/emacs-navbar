@@ -23,11 +23,11 @@ from [papaeye/elscreen](https://github.com/papaeye/elscreen) for now.
 Getting Started
 ---------------
 
-Evaluate the following code.
+1. This is the "Hello, world!" example:
+   ![](images/hello_world.png)
 
-```elisp
-(require 'navbar)
-(require 'navbarx-version)
-(setq navbar-item-list '(navbarx-version "Hello, world!"))
-(navbar-mode)
-```
+2. The element of `navbar-item-list` may be a function which returns a property list.  To reflect the change of `navbar-item-list`, run `navbar-sync`:
+   ![](images/navbarx_time.png)
+
+3. `navbarx-elscreen` displays ElScreen tabs in the navbar buffer:
+   ![](images/navbarx_elscreen.png)
