@@ -186,7 +186,7 @@ DOC is a doc string for function ITEM.
        ,(when getter
 	  `(defun ,item-update (&optional force)
 	     (when (navbar-item-update ,key force)
-	       (navbar-update nil ,key))))
+	       (navbar-update))))
        (defun ,item ()
 	 ,doc
 	 (list :key ,key :enable ,enable
@@ -245,7 +245,7 @@ the :get function is neither symbol `unchanged' nor existing value."
       (erase-buffer)
       (insert (funcall navbar-serialize-function)))))
 
-(defun navbar-update (&optional frame _key)
+(defun navbar-update (&optional frame)
   "Update navbar of FRAME."
   (funcall navbar-display-function (navbar-buffer frame)))
 

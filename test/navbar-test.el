@@ -518,8 +518,7 @@
 
 (ert-deftest navbar-mode/should-initialize-after-setup ()
   (navbar-test-with-item-list
-      (list (list :key t :value "foo"
-		  :initialize (lambda () (navbar-update nil t))))
+      '((:key t :value "foo" :initialize (lambda () (navbar-update))))
     (navbar-test-with-mode navbar-mode
       ;; Call `:initialize' function by `navbar-initialize'.
       ;; It is necessary to run `navbar-make-window' before that.
