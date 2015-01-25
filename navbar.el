@@ -45,7 +45,9 @@
   "List of navbar items.
 It is necessary to run `navbar-initialize' to reflect the change of
 `navbar-item-list'."
-  ;; TODO: :type
+  :type '(repeat (choice (string :tag "Literal text")
+			 (plist :tag "Literal property list")
+			 (function :tag "Factory function")))
   :group 'navbar)
 
 (defcustom navbar-item-separator
