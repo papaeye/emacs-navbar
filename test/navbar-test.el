@@ -203,6 +203,15 @@
     (should (navbar-item-update 'key))
     (should (string= (navbar-item-value-get 'key) "new-value"))))
 
+(ert-deftest navbar-item-update/enabled--got-new-property--put-it ()
+  (navbar-test-save-item-list
+    (setq navbar-item-alist '((key :get (lambda ()
+					  (propertize "old-value" 'foo t))
+				   :value "old-value")))
+    (should (navbar-item-update 'key))
+    (should (equal-including-properties
+	     (navbar-item-value-get 'key) (propertize "old-value" 'foo t)))))
+
 (ert-deftest navbar-item-update/enabled--got-old-value--not-put-it ()
   (navbar-test-save-item-list
     (setq navbar-item-alist '((key :get (lambda () "old-value")

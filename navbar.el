@@ -224,7 +224,7 @@ the :get function is neither symbol `unchanged' nor existing value."
 			       (funcall getter force)
 			     (funcall getter))))
       (unless (or (eq new-value 'unchanged)
-		  (equal new-value old-value))
+		  (equal-including-properties new-value old-value))
 	(plist-put item :value new-value)))))
 
 (defun navbar-serialize ()
