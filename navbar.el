@@ -43,8 +43,7 @@
 
 (defcustom navbar-item-list nil
   "List of navbar items.
-It is necessary to run `navbar-initialize' to reflect the change of
-`navbar-item-list'."
+It is necessary to run `navbar-sync' to reflect the change of this."
   :type '(repeat (choice (string :tag "Literal text")
 			 (plist :tag "Literal property list")
 			 (function :tag "Factory function")))
@@ -289,6 +288,12 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
       (when func
 	(navbar--funcall-with-no-display func))))
   (setq navbar-item-alist nil))
+
+(defun navbar-sync ()
+  "Reinitialize navbar items and refresh the navbar buffer."
+  (interactive)
+  (navbar-initialize)
+  (navbar-update))
 
 ;;; GUI
 

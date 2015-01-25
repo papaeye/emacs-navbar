@@ -388,6 +388,16 @@
       (navbar-deinitialize))
     (should-not displayed)))
 
+(ert-deftest navbar-sync/test ()
+  (navbar-test-with-stub-display
+    (navbar-test-save-item-list
+      (setq navbar-item-list '((:key t :value "foo")))
+      (navbar-sync)
+      (should (string= displayed "foo"))
+      (setq navbar-item-list '((:key t :value "bar")))
+      (navbar-sync)
+      (should (string= displayed "bar")))))
+
 ;;; GUI
 
 (unless noninteractive
