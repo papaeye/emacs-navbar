@@ -336,6 +336,13 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
 	(buffer-face-set 'navbar)))
     buffer))
 
+(defvar navbar-display-table
+  (let ((table (make-display-table)))
+    ;; Don't display the truncation indicator `$'
+    (set-display-table-slot table 'truncation ?\n)
+    table)
+  "Display table for navbar.el.")
+
 (defun navbar-make-window (&optional frame)
   (unless frame
     (setq frame (selected-frame)))
@@ -343,7 +350,8 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
     (let* ((buffer (navbar-buffer-create frame))
 	   (window (display-buffer-in-side-window
 		    buffer '((side . top) (window-height . 1)))))
-      (set-window-fringes window 0)
+      (set-window-fringes window 0 0)
+      (set-window-display-table window navbar-display-table)
       (set-window-parameter window 'delete-window 'ignore)
       (set-window-parameter window 'no-other-window t)
       (set-window-parameter window 'navbar-window t)
