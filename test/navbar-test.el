@@ -583,21 +583,20 @@
   (ert-deftest navbarx-elscreen/test ()
     (navbar-test-with-item-list '(navbarx-elscreen)
       (navbar-test-with-mode navbar-mode
-	(navbar-test-with-mode elscreen-mode
-	  (should-not (memq 'elscreen-tab-update elscreen-screen-update-hook))
-	  (should (memq 'navbarx-elscreen-update elscreen-screen-update-hook))
-	  (should (navbar-item-value-get 'navbarx-elscreen))
-	  (should (navbar-item-enabled-p 'navbarx-elscreen))
-	  ;; Successive call doesn't update navbar buffer
-	  (should (eq (navbarx-elscreen-get) 'unchanged))
-	  (should-not (navbarx-elscreen-update))
-	  ;; But force get should work
-	  (should-not (eq (navbarx-elscreen-get 'force) 'unchanged)))
-	(should (memq 'elscreen-tab-update elscreen-screen-update-hook))
-	(should-not (memq 'navbarx-elscreen-update
-			  elscreen-screen-update-hook))
-	(should-not (navbar-item-value-get 'navbarx-elscreen))
-	(should-not (navbar-item-enabled-p 'navbarx-elscreen))))))
+	(elscreen-start)
+	(should-not (memq 'elscreen-tab-update elscreen-screen-update-hook))
+	(should (memq 'navbarx-elscreen-update elscreen-screen-update-hook))
+	(should (navbar-item-value-get 'navbarx-elscreen))
+	(should (navbar-item-enabled-p 'navbarx-elscreen))
+	;; Successive call doesn't update navbar buffer
+	(should (eq (navbarx-elscreen-get) 'unchanged))
+	(should-not (navbarx-elscreen-update))
+	;; But force get should work
+	(should-not (eq (navbarx-elscreen-get 'force) 'unchanged)))
+      (should (memq 'elscreen-tab-update elscreen-screen-update-hook))
+      (should-not (memq 'navbarx-elscreen-update
+			elscreen-screen-update-hook))
+      (should-not (navbar-item-value-get 'navbarx-elscreen)))))
 
 (provide 'navbar-test)
 ;;; navbar-test.el ends here

@@ -6,7 +6,7 @@
 ;; Keywords: convenience
 ;; Version: 0.1.0
 ;; Homepage: https://github.com/papaeye/emacs-navbar
-;; Package-Requires: ((navbar "0.1.0") (elscreen "20141230"))
+;; Package-Requires: ((navbar "0.1.0") (elscreen "1.4.6"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -111,9 +111,15 @@
      screen-list)))
 
 (defun navbarx-elscreen-on ()
+  (if elscreen-frame-confs
+      (navbarx-elscreen--on)
+    (defadvice elscreen-start (after navbarx-elscreen-start activate)
+      (navbarx-elscreen--on))))
+
+(defun navbarx-elscreen--on ()
   (remove-hook 'elscreen-screen-update-hook 'elscreen-tab-update)
   (add-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update)
-  ;; When `elscreen-mode' is enabled after `navbar-mode' is enabled,
+  ;; When `elscreen-start' is run after `navbar-mode' is enabled,
   ;; hook functions of `elscreen-screen-update-hook' have already run
   ;; by `elscreen-make-frame-confs' before adding `navbarx-elscreen-update'
   ;; to `elscreen-screen-update-hook' by `navbarx-elscreen-on',
@@ -125,17 +131,20 @@
   (navbarx-elscreen-update 'force))
 
 (defun navbarx-elscreen-off ()
-  (navbarx-elscreen-update)
+  (ignore-errors
+    (ad-remove-advice 'elscreen-start 'after 'navbarx-elscreen-start)
+    (ad-update 'elscreen-start))
+
   (add-hook 'elscreen-screen-update-hook 'elscreen-tab-update)
   (remove-hook 'elscreen-screen-update-hook #'navbarx-elscreen-update))
 
 ;;;###autoload (autoload 'navbarx-elscreen "navbarx-elscreen")
 (navbar-define-item navbarx-elscreen
   "Navbar item for ElScreen support."
+  :enable t
   :get #'navbarx-elscreen-get
-  :mode elscreen-mode
-  :mode-on #'navbarx-elscreen-on
-  :mode-off #'navbarx-elscreen-off)
+  :initialize #'navbarx-elscreen-on
+  :deinitialize #'navbarx-elscreen-off)
 
 (provide 'navbarx-elscreen)
 ;;; navbarx-elscreen.el ends here
