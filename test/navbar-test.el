@@ -86,8 +86,9 @@
   (declare (indent 0) (debug t))
   `(let* (displayed
 	  (navbar-display-function
-	   (lambda (_buffer)
-	     (setq displayed (funcall navbar-serialize-function)))))
+	   (lambda (item-list _buffer)
+	     (setq displayed
+		   (funcall navbar-serialize-function item-list)))))
      (progn ,@body)))
 
 (defvar navbar-test-mode-on-hook)
@@ -266,26 +267,22 @@
 ;;;; `navbar-serialize'
 
 (ert-deftest navbar-serialize/string-value ()
-  (navbar-test-with-item-list '((:key t :value "foo"))
-    (navbar-initialize)
-    (should (string= (navbar-serialize) "foo"))))
+  (should (string= (navbar-serialize '((:key t :value "foo")))
+		   "foo")))
 
 (ert-deftest navbar-serialize/list-value ()
-  (navbar-test-with-item-list '((:key t :value ("foo" "bar")))
-    (navbar-initialize)
-    (should (string= (navbar-serialize) "foo bar"))))
+  (should (string= (navbar-serialize '((:key t :value ("foo" "bar"))))
+		   "foo bar")))
 
 (ert-deftest navbar-serialize/ignore-disabled-item ()
-  (navbar-test-with-item-list '((:key t :value "foo")
-				(:key t :enable nil :value "bar"))
-    (navbar-initialize)
-    (should (string= (navbar-serialize) "foo"))))
+  (should (string= (navbar-serialize '((:key t :value "foo")
+				       (:key t :enable nil :value "bar")))
+		   "foo")))
 
 (ert-deftest navbar-serialize/nest ()
-  (navbar-test-with-item-list '((:key t :value (("foo" "bar")))
-				(:key t :value "baz"))
-    (navbar-initialize)
-    (should (string= (navbar-serialize) "foo bar baz"))))
+  (should (string= (navbar-serialize '((:key t :value (("foo" "bar")))
+				       (:key t :value "baz")))
+		   "foo bar baz")))
 
 ;;;; `navbar-initialize'
 

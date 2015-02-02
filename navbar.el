@@ -62,12 +62,15 @@ It is necessary to run `navbar-sync' to reflect the change of this."
   :group 'navbar)
 
 (defcustom navbar-serialize-function #'navbar-serialize
-  "Function to convert `navbar-item-alist' to a string."
+  "Function to convert a list of navbar items to a string.
+The function is called with one argument, a list of navbar items."
   :type 'function
   :group 'navbar)
 
 (defcustom navbar-display-function #'navbar-display
-  "Function to display serialized `navbar-item-alist' in a buffer."
+  "Function to display serialized a list of navbar items in a buffer.
+The function is called with two arguments, a list of navbar items and
+a buffer."
   :type 'function
   :group 'navbar)
 
@@ -228,25 +231,27 @@ the :get function is neither symbol `unchanged' nor existing value."
 		  (equal-including-properties new-value old-value))
 	(plist-put item :value new-value)))))
 
-(defun navbar-serialize ()
-  "Convert `navbar-item-alist' to a string."
+(defun navbar-serialize (item-list)
+  "Convert ITEM-LIST to a string."
   (mapconcat 'identity
 	     (navbar--flatten
-	      (cl-loop for item in (mapcar 'cdr navbar-item-alist)
+	      (cl-loop for item in item-list
 		       when (navbar--item-enabled-p item)
 		       collect (plist-get item :value)))
 	     navbar-item-separator))
 
-(defun navbar-display (buffer)
-  "Display serialized `navbar-item-alist' in a BUFFER."
+(defun navbar-display (item-list buffer)
+  "Display serialized ITEM-LIST in BUFFER."
   (with-current-buffer buffer
     (let (deactivate-mark)
       (erase-buffer)
-      (insert (funcall navbar-serialize-function)))))
+      (insert (funcall navbar-serialize-function item-list)))))
 
 (defun navbar-update (&optional frame)
   "Update navbar of FRAME."
-  (funcall navbar-display-function (navbar-buffer frame)))
+  (funcall navbar-display-function
+	   (mapcar #'cdr navbar-item-alist)
+	   (navbar-buffer frame)))
 
 (defun navbar--funcall-with-no-display (function &rest arguments)
   (let ((navbar-display-function #'ignore))
