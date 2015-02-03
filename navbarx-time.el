@@ -34,10 +34,9 @@
 
 (defun navbarx-time-get ()
   (and display-time-string
-       (propertize (concat navbar-item-padding
-			   (substring-no-properties display-time-string)
-			   navbar-item-padding)
-		   'face 'navbarx-time)))
+       (list (substring-no-properties display-time-string)
+	     :padding navbar-item-padding
+	     :propertize '(face navbarx-time))))
 
 (defun navbarx-time-on ()
   (setq global-mode-string

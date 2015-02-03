@@ -89,23 +89,20 @@
 	     (tab-face (if (= screen current-screen)
 			   'elscreen-tab-current-screen-face
 			 'elscreen-tab-other-screen-face)))
-	 (list (list (concat
-		      (when (memq elscreen-tab-display-kill-screen '(left t))
-			navbarx-elscreen-kill-screen)
-		      navbar-item-padding)
-		     (list (propertize
-			    (concat
-			     (number-to-string screen)
-			     (elscreen-status-label screen)
-			     navbar-item-padding
-			     screen-name)
-			    'help-echo screen-name
-			    'keymap navbarx-elscreen-tab-body-map)
-			   :truncate navbarx-elscreen-tab-truncate)
-		     (concat
-		      navbar-item-padding
-		      (when (eq elscreen-tab-display-kill-screen 'right)
-			navbarx-elscreen-kill-screen)))
+	 (list (list (and (memq elscreen-tab-display-kill-screen '(left t))
+			  navbarx-elscreen-kill-screen)
+		     (list (concat
+			    (number-to-string screen)
+			    (elscreen-status-label screen)
+			    navbar-item-padding
+			    screen-name)
+			   :truncate navbarx-elscreen-tab-truncate
+			   :propertize
+			   (list 'help-echo screen-name
+				 'keymap navbarx-elscreen-tab-body-map)
+			   :padding navbar-item-padding)
+		     (and (eq elscreen-tab-display-kill-screen 'right)
+			  navbarx-elscreen-kill-screen))
 	       :propertize (list 'face tab-face
 				 'pointer 'hand
 				 'navbarx-elscreen-screen screen))))

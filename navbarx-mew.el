@@ -43,8 +43,9 @@
 
 (defun navbarx-mew-get ()
   (and mew-biff-string
-       (propertize (concat navbar-item-padding mew-biff-string)
-		   'face 'navbarx-mew)))
+       (list mew-biff-string
+	     :padding-left navbar-item-padding
+	     :propertize '(face navbarx-mew))))
 
 (defun navbarx-mew-delete-mode-string ()
   (setq global-mode-string
