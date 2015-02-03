@@ -30,6 +30,11 @@
 (require 'elscreen)
 (require 'navbar)
 
+(defcustom navbarx-elscreen-tab-truncate 16
+  "Width to truncate the tab body."
+  :type 'integer
+  :group 'navbar)
+
 (defun navbarx-elscreen-screen-command (command)
   (lambda (event)
     (interactive "e")
@@ -83,31 +88,27 @@
        (let ((screen-name (cdr (assq screen screen-to-name-alist)))
 	     (tab-face (if (= screen current-screen)
 			   'elscreen-tab-current-screen-face
-			 'elscreen-tab-other-screen-face))
-	     tab-string)
-
-	 (setq tab-string
-	       (concat
-		(when (memq elscreen-tab-display-kill-screen '(left t))
-		  navbarx-elscreen-kill-screen)
-		navbar-item-padding
-		(propertize
-		 (concat
-		  (when (< screen 10)
-		    (number-to-string screen))
-		  (elscreen-status-label screen)
-		  navbar-item-padding
-		  screen-name)
-		 'help-echo screen-name
-		 'keymap navbarx-elscreen-tab-body-map)
-		navbar-item-padding
-		(when (eq elscreen-tab-display-kill-screen 'right)
-		  navbarx-elscreen-kill-screen)))
-
-	 (propertize tab-string
-		     'face tab-face
-		     'pointer 'hand
-		     'navbarx-elscreen-screen screen)))
+			 'elscreen-tab-other-screen-face)))
+	 (list (list (concat
+		      (when (memq elscreen-tab-display-kill-screen '(left t))
+			navbarx-elscreen-kill-screen)
+		      navbar-item-padding)
+		     (list (propertize
+			    (concat
+			     (number-to-string screen)
+			     (elscreen-status-label screen)
+			     navbar-item-padding
+			     screen-name)
+			    'help-echo screen-name
+			    'keymap navbarx-elscreen-tab-body-map)
+			   :truncate navbarx-elscreen-tab-truncate)
+		     (concat
+		      navbar-item-padding
+		      (when (eq elscreen-tab-display-kill-screen 'right)
+			navbarx-elscreen-kill-screen)))
+	       :propertize (list 'face tab-face
+				 'pointer 'hand
+				 'navbarx-elscreen-screen screen))))
      screen-list)))
 
 (defun navbarx-elscreen-on ()
