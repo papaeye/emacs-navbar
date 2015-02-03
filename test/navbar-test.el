@@ -309,6 +309,24 @@
 	    '(:value "foobar" :propertize (face bold)))
 	   (propertize "foobar" 'face 'bold))))
 
+(ert-deftest navbar--item-serialize/padding ()
+  (should (string= (navbar--item-serialize '(:value "foo" :padding "|"))
+		   "|foo|"))
+  (should (string= (navbar--item-serialize '(:value "foo" :padding-left "<"))
+		   "<foo"))
+  (should (string= (navbar--item-serialize '(:value "foo" :padding-right ">"))
+		   "foo>")))
+
+(ert-deftest navbar--item-serialize/padding-and-properize ()
+  (should (equal-including-properties
+	   (navbar--item-serialize
+	    '(:value "foo" :padding "|" :propertize (face bold)))
+	   (propertize "|foo|" 'face 'bold)))
+  (should (equal-including-properties
+	   (navbar--item-serialize
+	    '(:value "foo" :propertize (face bold) :padding "|"))
+	   (concat "|" (propertize "foo" 'face 'bold) "|"))))
+
 ;;;; `navbar-serialize'
 
 (ert-deftest navbar-serialize/string-value ()

@@ -240,7 +240,10 @@ the :get function is neither symbol `unchanged' nor existing value."
       (setq v (pop plist))
       (pcase p
 	(`:truncate (setq value (truncate-string-to-width value v nil nil t)))
-	(`:propertize (setq value (apply #'propertize value v))))))
+	(`:propertize (setq value (apply #'propertize value v)))
+	(`:padding (setq value (concat v value v)))
+	(`:padding-left (setq value (concat v value)))
+	(`:padding-right (setq value (concat value v))))))
   value)
 
 (defun navbar--item-value-serialize (value)
