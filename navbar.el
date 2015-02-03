@@ -83,18 +83,10 @@ a buffer."
   "Default face of the navbar item."
   :group 'navbar)
 
-;;; Utilities
-
 (defconst navbar-font-lock-keywords
   '(("(\\(navbar-define-item\\)\\>\\s-*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
      (1 font-lock-keyword-face)
      (2 font-lock-function-name-face nil t))))
-
-(defun navbar--flatten (l)
-  (cond
-   ((null l) nil)
-   ((atom l) (list l))
-   (t (append (navbar--flatten (car l)) (navbar--flatten (cdr l))))))
 
 ;;; Features
 
@@ -231,13 +223,59 @@ the :get function is neither symbol `unchanged' nor existing value."
 		  (equal-including-properties new-value old-value))
 	(plist-put item :value new-value)))))
 
+(defun navbar--item-value-normalize (value)
+  (cond
+   ((stringp value)
+    (list value))
+   ((keywordp (cadr value))
+    (list value))
+   (t
+    value)))
+
+(defun navbar--apply-item-properties (value properties)
+  (let ((plist properties)
+	p v)
+    (while plist
+      (setq p (pop plist))
+      (setq v (pop plist))
+      (pcase p
+	(`:truncate (setq value (truncate-string-to-width value v nil nil t)))
+	(`:propertize (setq value (apply #'propertize value v))))))
+  value)
+
+(defun navbar--item-value-serialize (value)
+  "Convert item VALUE to a string.
+VALUE can be a string, a cons of a string and a property list
+or a list of them.  If it is a list, this uses `concat'
+to concatenate the elements of the list."
+  (cond
+   ((null value) nil)
+   ((stringp value) value)
+   ((keywordp (cadr value))
+    (navbar--apply-item-properties
+     (navbar--item-value-serialize (car value))
+     (cdr value)))
+   (t
+    (concat (navbar--item-value-serialize (car value))
+	    (navbar--item-value-serialize (cdr value))))))
+
+(defun navbar--item-serialize (item)
+  "Convert ITEM to a string.  If ITEM has multiple values,
+they are concatenated with `navbar-item-separator'."
+  (navbar--apply-item-properties
+   (mapconcat #'navbar--item-value-serialize
+	      (navbar--item-value-normalize (plist-get item :value))
+	      navbar-item-separator)
+   item))
+
 (defun navbar-serialize (item-list)
-  "Convert ITEM-LIST to a string."
-  (mapconcat 'identity
-	     (navbar--flatten
-	      (cl-loop for item in item-list
-		       when (navbar--item-enabled-p item)
-		       collect (plist-get item :value)))
+  "Convert ITEM-LIST to a string.
+Each item is concatenated with `navbar-item-separator'.
+Disabled items are ignored."
+  (mapconcat #'identity
+	     (cl-loop for item in item-list
+		      when (navbar--item-enabled-p item)
+		      collect (navbar--item-serialize item))
 	     navbar-item-separator))
 
 (defun navbar-display (item-list buffer)

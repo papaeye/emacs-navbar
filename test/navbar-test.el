@@ -264,6 +264,51 @@
     (should-not (navbar-item-update 'key))
     (should-not (navbar-item-value-get 'key))))
 
+;;;; `navbar--item-serialize'
+
+(ert-deftest navbar--item-serialize/string ()
+  (should (string= (navbar--item-serialize '(:value "foo"))
+		   "foo")))
+
+(ert-deftest navbar--item-serialize/list ()
+  (should (string= (navbar--item-serialize '(:value ("foo" "bar")))
+		   "foo bar")))
+
+(ert-deftest navbar--item-serialize/plist ()
+  (should (string= (navbar--item-serialize '(:value ("foo" :prop t)))
+		   "foo")))
+
+(ert-deftest navbar--item-serialize/nested ()
+  (should (string= (navbar--item-serialize '(:value ((("foo" :prop t) "bar")
+						     "baz")))
+		   "foobar baz")))
+
+(ert-deftest navbar--item-serialize/truncate/item-value ()
+  (should (string= (navbar--item-serialize '(:value ("foobar" :truncate 5)))
+		   "fo...")))
+
+(ert-deftest navbar--item-serialize/truncate/item ()
+  (should (string= (navbar--item-serialize '(:value "foobar" :truncate 5))
+		   "fo...")))
+
+(ert-deftest navbar--item-serialize/truncate/multiple-item-values ()
+  (should (string= (navbar--item-serialize
+		    '(:value ((("foobar" :truncate 5) "bar")
+			      "baz")))
+		   "fo...bar baz")))
+
+(ert-deftest navbar--item-serialize/truncate/nested-item-value ()
+  (should (string= (navbar--item-serialize
+		    '(:value ((("foobar" :truncate 5) "barbaz")
+			      :truncate 10)))
+		   "fo...ba...")))
+
+(ert-deftest navbar--item-serialize/propertize ()
+  (should (equal-including-properties
+	   (navbar--item-serialize
+	    '(:value "foobar" :propertize (face bold)))
+	   (propertize "foobar" 'face 'bold))))
+
 ;;;; `navbar-serialize'
 
 (ert-deftest navbar-serialize/string-value ()
@@ -278,11 +323,6 @@
   (should (string= (navbar-serialize '((:key t :value "foo")
 				       (:key t :enable nil :value "bar")))
 		   "foo")))
-
-(ert-deftest navbar-serialize/nest ()
-  (should (string= (navbar-serialize '((:key t :value (("foo" "bar")))
-				       (:key t :value "baz")))
-		   "foo bar baz")))
 
 ;;;; `navbar-initialize'
 
