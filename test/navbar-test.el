@@ -265,23 +265,23 @@
     (should-not (navbar-item-update 'key))
     (should-not (navbar-item-value-get 'key))))
 
-;;;; `navbar--apply-item-properties'
+;;;; `navbar--item-propertize'
 
-(ert-deftest navbar--apply-item-properties/truncate ()
-  (should (string= (navbar--apply-item-properties "foobar" '(:truncate 5))
+(ert-deftest navbar--item-propertize/truncate ()
+  (should (string= (navbar--item-propertize "foobar" '(:truncate 5))
 		   "fo...")))
 
-(ert-deftest navbar--apply-item-properties/propertize ()
+(ert-deftest navbar--item-propertize/propertize ()
   (should (equal-including-properties
-	   (navbar--apply-item-properties "foo" '(:propertize (face bold)))
+	   (navbar--item-propertize "foo" '(:propertize (face bold)))
 	   (propertize "foo" 'face 'bold))))
 
-(ert-deftest navbar--apply-item-properties/padding ()
-  (should (string= (navbar--apply-item-properties "foo" '(:padding "|"))
+(ert-deftest navbar--item-propertize/padding ()
+  (should (string= (navbar--item-propertize "foo" '(:padding "|"))
 		   "|foo|"))
-  (should (string= (navbar--apply-item-properties "foo" '(:padding-left "<"))
+  (should (string= (navbar--item-propertize "foo" '(:padding-left "<"))
 		   "<foo"))
-  (should (string= (navbar--apply-item-properties "foo" '(:padding-right ">"))
+  (should (string= (navbar--item-propertize "foo" '(:padding-right ">"))
 		   "foo>")))
 
 ;;;; `navbar--item-serialize'
