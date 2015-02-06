@@ -284,24 +284,43 @@
   (should (string= (navbar--item-propertize "foo" :padding-right ">")
 		   "foo>")))
 
+(ert-deftest navbar--item-propertize/order ()
+  (should (equal-including-properties
+	   (navbar--item-propertize
+	    "foo" :padding "|" :propertize '(face bold))
+	   (propertize "|foo|" 'face 'bold)))
+  (should (equal-including-properties
+	   (navbar--item-propertize
+	    "foo" :propertize '(face bold) :padding "|")
+	   (concat "|" (propertize "foo" 'face 'bold) "|"))))
+
+;;;; `navbar--item-value-serialize'
+
+(ert-deftest navbar--item-value-serialize/string ()
+  (should (string= (navbar--item-value-serialize "foo")
+		   "foo")))
+
+(ert-deftest navbar--item-value-serialize/propertized ()
+  (should (string= (navbar--item-value-serialize '("foo" :prop t))
+		   "foo")))
+
+(ert-deftest navbar--item-value-serialize/list ()
+  (should (string= (navbar--item-value-serialize '("foo" "bar"))
+		   "foobar")))
+
+(ert-deftest navbar--item-value-serialize/nested ()
+  (should (string= (navbar--item-value-serialize '(("foo" :prop t) "bar"))
+		   "foobar")))
+
 ;;;; `navbar--item-serialize'
 
-(ert-deftest navbar--item-serialize/string ()
+(ert-deftest navbar--item-serialize/single-value ()
   (should (string= (navbar--item-serialize '(:value "foo"))
 		   "foo")))
 
-(ert-deftest navbar--item-serialize/list ()
+(ert-deftest navbar--item-serialize/multiple-values ()
   (should (string= (navbar--item-serialize '(:value ("foo" "bar")))
 		   "foo bar")))
-
-(ert-deftest navbar--item-serialize/plist ()
-  (should (string= (navbar--item-serialize '(:value ("foo" :prop t)))
-		   "foo")))
-
-(ert-deftest navbar--item-serialize/nested ()
-  (should (string= (navbar--item-serialize '(:value ((("foo" :prop t) "bar")
-						     "baz")))
-		   "foobar baz")))
 
 (ert-deftest navbar--item-serialize/property/item-value ()
   (should (string= (navbar--item-serialize '(:value ("foobar" :truncate 5)))
@@ -322,16 +341,6 @@
 		    '(:value ((("foobar" :truncate 5) "barbaz")
 			      :truncate 10)))
 		   "fo...ba...")))
-
-(ert-deftest navbar--item-serialize/property/order ()
-  (should (equal-including-properties
-	   (navbar--item-serialize
-	    '(:value "foo" :padding "|" :propertize (face bold)))
-	   (propertize "|foo|" 'face 'bold)))
-  (should (equal-including-properties
-	   (navbar--item-serialize
-	    '(:value "foo" :propertize (face bold) :padding "|"))
-	   (concat "|" (propertize "foo" 'face 'bold) "|"))))
 
 ;;;; `navbar-serialize'
 
