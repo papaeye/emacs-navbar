@@ -268,20 +268,20 @@
 ;;;; `navbar--item-propertize'
 
 (ert-deftest navbar--item-propertize/truncate ()
-  (should (string= (navbar--item-propertize "foobar" '(:truncate 5))
+  (should (string= (navbar--item-propertize "foobar" :truncate 5)
 		   "fo...")))
 
 (ert-deftest navbar--item-propertize/propertize ()
   (should (equal-including-properties
-	   (navbar--item-propertize "foo" '(:propertize (face bold)))
+	   (navbar--item-propertize "foo" :propertize '(face bold))
 	   (propertize "foo" 'face 'bold))))
 
 (ert-deftest navbar--item-propertize/padding ()
-  (should (string= (navbar--item-propertize "foo" '(:padding "|"))
+  (should (string= (navbar--item-propertize "foo" :padding "|")
 		   "|foo|"))
-  (should (string= (navbar--item-propertize "foo" '(:padding-left "<"))
+  (should (string= (navbar--item-propertize "foo" :padding-left "<")
 		   "<foo"))
-  (should (string= (navbar--item-propertize "foo" '(:padding-right ">"))
+  (should (string= (navbar--item-propertize "foo" :padding-right ">")
 		   "foo>")))
 
 ;;;; `navbar--item-serialize'

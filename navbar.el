@@ -226,7 +226,7 @@ the :get function is neither symbol `unchanged' nor existing value."
    (t
     value)))
 
-(defun navbar--item-propertize (value properties)
+(defun navbar--item-propertize (value &rest properties)
   (let ((plist properties)
 	p v)
     (while plist
@@ -249,9 +249,9 @@ to concatenate the elements of the list."
    ((null value) nil)
    ((stringp value) value)
    ((keywordp (cadr value))
-    (navbar--item-propertize
-     (navbar--item-value-serialize (car value))
-     (cdr value)))
+    (apply #'navbar--item-propertize
+	   (navbar--item-value-serialize (car value))
+	   (cdr value)))
    (t
     (concat (navbar--item-value-serialize (car value))
 	    (navbar--item-value-serialize (cdr value))))))
@@ -259,11 +259,11 @@ to concatenate the elements of the list."
 (defun navbar--item-serialize (item)
   "Convert ITEM to a string.  If ITEM has multiple values,
 they are concatenated with `navbar-item-separator'."
-  (navbar--item-propertize
-   (mapconcat #'navbar--item-value-serialize
-	      (navbar--item-value-normalize (plist-get item :value))
-	      navbar-item-separator)
-   item))
+  (apply #'navbar--item-propertize
+	 (mapconcat #'navbar--item-value-serialize
+		    (navbar--item-value-normalize (plist-get item :value))
+		    navbar-item-separator)
+	 item))
 
 (defun navbar-serialize (item-list)
   "Convert ITEM-LIST to a string.
