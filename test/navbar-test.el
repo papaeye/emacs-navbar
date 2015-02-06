@@ -265,6 +265,25 @@
     (should-not (navbar-item-update 'key))
     (should-not (navbar-item-value-get 'key))))
 
+;;;; `navbar--apply-item-properties'
+
+(ert-deftest navbar--apply-item-properties/truncate ()
+  (should (string= (navbar--apply-item-properties "foobar" '(:truncate 5))
+		   "fo...")))
+
+(ert-deftest navbar--apply-item-properties/propertize ()
+  (should (equal-including-properties
+	   (navbar--apply-item-properties "foo" '(:propertize (face bold)))
+	   (propertize "foo" 'face 'bold))))
+
+(ert-deftest navbar--apply-item-properties/padding ()
+  (should (string= (navbar--apply-item-properties "foo" '(:padding "|"))
+		   "|foo|"))
+  (should (string= (navbar--apply-item-properties "foo" '(:padding-left "<"))
+		   "<foo"))
+  (should (string= (navbar--apply-item-properties "foo" '(:padding-right ">"))
+		   "foo>")))
+
 ;;;; `navbar--item-serialize'
 
 (ert-deftest navbar--item-serialize/string ()
@@ -284,41 +303,27 @@
 						     "baz")))
 		   "foobar baz")))
 
-(ert-deftest navbar--item-serialize/truncate/item-value ()
+(ert-deftest navbar--item-serialize/property/item-value ()
   (should (string= (navbar--item-serialize '(:value ("foobar" :truncate 5)))
 		   "fo...")))
 
-(ert-deftest navbar--item-serialize/truncate/item ()
+(ert-deftest navbar--item-serialize/property/item ()
   (should (string= (navbar--item-serialize '(:value "foobar" :truncate 5))
 		   "fo...")))
 
-(ert-deftest navbar--item-serialize/truncate/multiple-item-values ()
+(ert-deftest navbar--item-serialize/property/multiple-item-values ()
   (should (string= (navbar--item-serialize
 		    '(:value ((("foobar" :truncate 5) "bar")
 			      "baz")))
 		   "fo...bar baz")))
 
-(ert-deftest navbar--item-serialize/truncate/nested-item-value ()
+(ert-deftest navbar--item-serialize/property/nested-item-value ()
   (should (string= (navbar--item-serialize
 		    '(:value ((("foobar" :truncate 5) "barbaz")
 			      :truncate 10)))
 		   "fo...ba...")))
 
-(ert-deftest navbar--item-serialize/propertize ()
-  (should (equal-including-properties
-	   (navbar--item-serialize
-	    '(:value "foobar" :propertize (face bold)))
-	   (propertize "foobar" 'face 'bold))))
-
-(ert-deftest navbar--item-serialize/padding ()
-  (should (string= (navbar--item-serialize '(:value "foo" :padding "|"))
-		   "|foo|"))
-  (should (string= (navbar--item-serialize '(:value "foo" :padding-left "<"))
-		   "<foo"))
-  (should (string= (navbar--item-serialize '(:value "foo" :padding-right ">"))
-		   "foo>")))
-
-(ert-deftest navbar--item-serialize/padding-and-properize ()
+(ert-deftest navbar--item-serialize/property/order ()
   (should (equal-including-properties
 	   (navbar--item-serialize
 	    '(:value "foo" :padding "|" :propertize (face bold)))
@@ -331,16 +336,16 @@
 ;;;; `navbar-serialize'
 
 (ert-deftest navbar-serialize/string-value ()
-  (should (string= (navbar-serialize '((:key t :value "foo")))
+  (should (string= (navbar-serialize '((:value "foo")))
 		   "foo")))
 
 (ert-deftest navbar-serialize/list-value ()
-  (should (string= (navbar-serialize '((:key t :value ("foo" "bar"))))
+  (should (string= (navbar-serialize '((:value ("foo" "bar"))))
 		   "foo bar")))
 
 (ert-deftest navbar-serialize/ignore-disabled-item ()
-  (should (string= (navbar-serialize '((:key t :value "foo")
-				       (:key t :enable nil :value "bar")))
+  (should (string= (navbar-serialize '((:value "foo")
+				       (:value "bar" :enable nil)))
 		   "foo")))
 
 ;;;; `navbar-initialize'
