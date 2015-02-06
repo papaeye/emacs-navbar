@@ -217,15 +217,6 @@ the :get function is neither symbol `unchanged' nor existing value."
 		  (equal-including-properties new-value old-value))
 	(plist-put item :value new-value)))))
 
-(defun navbar--item-value-normalize (value)
-  (cond
-   ((stringp value)
-    (list value))
-   ((keywordp (cadr value))
-    (list value))
-   (t
-    value)))
-
 (defun navbar--item-propertize (value &rest properties)
   (let ((plist properties)
 	p v)
@@ -255,6 +246,14 @@ to concatenate the elements of the list."
    (t
     (concat (navbar--item-value-serialize (car value))
 	    (navbar--item-value-serialize (cdr value))))))
+
+(defun navbar--item-value-atom-p (value)
+  (or (stringp value) (keywordp (cadr value))))
+
+(defun navbar--item-value-normalize (value)
+  (if (navbar--item-value-atom-p value)
+      (list value)
+    value))
 
 (defun navbar--item-serialize (item)
   "Convert ITEM to a string.  If ITEM has multiple values,
