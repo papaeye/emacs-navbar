@@ -61,12 +61,6 @@ It is necessary to run `navbar-sync' to reflect the change of this."
   :type 'string
   :group 'navbar)
 
-(defcustom navbar-serialize-function #'navbar-serialize
-  "Function to convert a list of navbar items to a string.
-The function is called with one argument, a list of navbar items."
-  :type 'function
-  :group 'navbar)
-
 (defcustom navbar-display-function #'navbar-display
   "Function to display serialized a list of navbar items in a buffer.
 The function is called with two arguments, a list of navbar items and
@@ -286,7 +280,7 @@ Disabled items are ignored."
   (with-current-buffer buffer
     (let (deactivate-mark)
       (erase-buffer)
-      (insert (funcall navbar-serialize-function item-list)))))
+      (insert (navbar-serialize item-list)))))
 
 (defun navbar-update (&optional frame)
   "Update navbar of FRAME."

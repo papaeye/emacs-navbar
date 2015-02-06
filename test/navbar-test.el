@@ -87,8 +87,9 @@
   `(let* (displayed
 	  (navbar-display-function
 	   (lambda (item-list _buffer)
-	     (setq displayed
-		   (funcall navbar-serialize-function item-list)))))
+	     (with-temp-buffer
+	       (navbar-display item-list (current-buffer))
+	       (setq displayed (buffer-string))))))
      (progn ,@body)))
 
 (defvar navbar-test-mode-on-hook)
