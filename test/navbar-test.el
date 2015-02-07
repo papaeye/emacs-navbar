@@ -380,7 +380,7 @@
 
 (ert-deftest navbar-display/glue ()
   (save-window-excursion
-    (switch-to-buffer (current-buffer))
+    (set-window-buffer nil (current-buffer))
     (let ((glue-width (- (window-body-width nil t)
 			 (let (deactivate-mark)
 			   (erase-buffer)
