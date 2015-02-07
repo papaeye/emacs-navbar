@@ -6,7 +6,7 @@
 ;; Keywords: convenience
 ;; Version: 0.1.0
 ;; Homepage: https://github.com/papaeye/emacs-navbar
-;; Package-Requires: ((emacs "24.3"))
+;; Package-Requires: ((emacs "24.4"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 ;; Just like the navbar component of Bootstrap <http://getbootstrap.com/>,
 ;; navbar.el can contain various components called navbar items.
 ;;
-;; navbar.el requires Emacs 24.3 or later.
+;; navbar.el requires Emacs 24.4 or later.
 
 ;;; Code:
 
