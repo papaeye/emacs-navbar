@@ -286,11 +286,12 @@ Disabled items are ignored."
 
 (defun navbar--expand-glues (values strings window)
   (let ((max-width (window-body-width window t))
-	(line-width (with-selected-window window
+	(line-width (with-temp-buffer
 		      (let (deactivate-mark)
-			(erase-buffer)
-			(insert (apply #'concat strings))
-			(car (window-text-pixel-size))))))
+			(insert (apply #'concat strings)))
+		      (save-window-excursion
+			(set-window-buffer window (current-buffer))
+			(car (window-text-pixel-size window))))))
     (if (>= line-width max-width)
 	strings
       (let* ((space (- max-width line-width))
