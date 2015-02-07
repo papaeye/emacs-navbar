@@ -314,13 +314,21 @@
 
 ;;;; `navbar--item-serialize'
 
-(ert-deftest navbar--item-serialize/single-value ()
+(ert-deftest navbar--item-serialize/string-value ()
   (should (string= (navbar--item-serialize '(:value "foo"))
 		   "foo")))
 
-(ert-deftest navbar--item-serialize/multiple-values ()
+(ert-deftest navbar--item-serialize/multiple-string-values ()
   (should (string= (navbar--item-serialize '(:value ("foo" "bar")))
 		   "foo bar")))
+
+(ert-deftest navbar--item-serialize/symbol-value ()
+  (should (string= (navbar--item-serialize '(:value foo))
+		   'foo)))
+
+(ert-deftest navbar--item-serialize/nil-value ()
+  (should (string= (navbar--item-serialize '(:value nil))
+		   "")))
 
 (ert-deftest navbar--item-serialize/property/item-value ()
   (should (string= (navbar--item-serialize '(:value ("foobar" :truncate 5)))
@@ -342,20 +350,46 @@
 			      :truncate 10)))
 		   "fo...ba...")))
 
-;;;; `navbar-serialize'
+;;;; `navbar--serialize'
 
-(ert-deftest navbar-serialize/string-value ()
-  (should (string= (navbar-serialize '((:value "foo")))
-		   "foo")))
+(ert-deftest navbar-serialize/string-values ()
+  (should (equal (navbar--serialize '((:value ("foo" "bar"))
+				      (:value "baz")))
+		 '("foo bar baz"))))
 
-(ert-deftest navbar-serialize/list-value ()
-  (should (string= (navbar-serialize '((:value ("foo" "bar"))))
-		   "foo bar")))
+(ert-deftest navbar-serialize/symbol ()
+  (should (equal (navbar--serialize '((:value "foo") (:value "bar")
+				      (:value baz)))
+		 '("foo bar" baz))))
+
+(ert-deftest navbar-serialize/nil ()
+  (should (equal (navbar--serialize '((:value "foo") nil (:value "bar")))
+		 '("foo  bar"))))
 
 (ert-deftest navbar-serialize/ignore-disabled-item ()
-  (should (string= (navbar-serialize '((:value "foo")
-				       (:value "bar" :enable nil)))
-		   "foo")))
+  (should (equal (navbar--serialize '((:value "foo") (:value "bar")
+				      (:value "bar" :enable nil)))
+		 '("foo bar"))))
+
+;;;; `navbar-display'
+
+(ert-deftest navbar-display/strings ()
+  (with-temp-buffer
+    (navbar-display '((:value "foo") (:value "bar")) (current-buffer))
+    (should (string= (buffer-string) "foo bar"))))
+
+(ert-deftest navbar-display/glue ()
+  (save-window-excursion
+    (switch-to-buffer (current-buffer))
+    (let ((glue-width (- (window-body-width nil t)
+			 (let (deactivate-mark)
+			   (erase-buffer)
+			   (insert "foo")
+			   (car (window-text-pixel-size))))))
+      (navbar-display '((:value glue) (:value "foo")) (current-buffer))
+      (should (string= (buffer-string) " foo"))
+      (should (equal (get-text-property 0 'display (buffer-string))
+		     `(space :width (,glue-width)))))))
 
 ;;;; `navbar-initialize'
 
@@ -565,9 +599,11 @@
 (ert-deftest navbar-mode/hooks ()
   (navbar-test-with-mode navbar-mode
     (should (memq 'navbar-update after-make-frame-functions))
-    (should (memq 'navbar-make-window after-make-frame-functions)))
+    (should (memq 'navbar-make-window after-make-frame-functions))
+    (should (memq 'navbar-update window-size-change-functions)))
   (should-not (memq 'navbar-update after-make-frame-functions))
-  (should-not (memq 'navbar-make-window after-make-frame-functions)))
+  (should-not (memq 'navbar-make-window after-make-frame-functions))
+  (should-not (memq 'navbar-update window-size-change-functions)))
 
 (unless noninteractive
   (ert-deftest navbar-mode/multiple-frames ()

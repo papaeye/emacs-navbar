@@ -256,36 +256,79 @@ to concatenate the elements of the list."
     value))
 
 (defun navbar--item-serialize (item)
-  "Convert ITEM to a string.  If ITEM has multiple values,
+  "Convert ITEM to a string if possible.
+If an item value is a symbol, the symbol is returned as is.
+If ITEM has multiple string values,
 they are concatenated with `navbar-item-separator'."
-  (apply #'navbar--item-propertize
-	 (mapconcat #'navbar--item-value-serialize
-		    (navbar--item-value-normalize (plist-get item :value))
-		    navbar-item-separator)
-	 item))
+  (let ((value (plist-get item :value)))
+    (if (and (symbolp value) value)
+	value
+      (apply #'navbar--item-propertize
+	     (mapconcat #'navbar--item-value-serialize
+			(navbar--item-value-normalize value)
+			navbar-item-separator)
+	     item))))
 
-(defun navbar-serialize (item-list)
-  "Convert ITEM-LIST to a string.
-Each item is concatenated with `navbar-item-separator'.
+(defun navbar--serialize (item-list)
+  "Convert ITEM-LIST to a list of item values.
+An item value is converted to a string if possible.
+
+The continuous elements of strings are concatenated with
+`navbar-item-separator'.
 Disabled items are ignored."
-  (mapconcat #'identity
-	     (cl-loop for item in item-list
-		      when (navbar--item-enabled-p item)
-		      collect (navbar--item-serialize item))
-	     navbar-item-separator))
+  (let (result value)
+    (dolist (item item-list (nreverse result))
+      (when (navbar--item-enabled-p item)
+	(setq value (navbar--item-serialize item))
+	(if (and (stringp value) (stringp (car result)))
+	    (cl-callf concat (car result) navbar-item-separator value)
+	  (push value result))))))
+
+(defun navbar--expand-glues (values strings window)
+  (let ((max-width (window-body-width window t))
+	(line-width (with-selected-window window
+		      (let (deactivate-mark)
+			(erase-buffer)
+			(insert (apply #'concat strings))
+			(car (window-text-pixel-size))))))
+    (if (>= line-width max-width)
+	strings
+      (let* ((space (- max-width line-width))
+	     (num-glues (cl-loop for value in values
+				 count (eq value 'glue)))
+	     (q (/ space num-glues))
+	     (r (% space num-glues))
+	     glues)
+	(setq glues (make-list num-glues q))
+	(cl-incf (car glues) r)
+	(mapcar (lambda (value)
+		  (if (eq value 'glue)
+		      (propertize " " 'display `(space :width (,(pop glues))))
+		    value))
+		values)))))
 
 (defun navbar-display (item-list buffer)
   "Display serialized ITEM-LIST in BUFFER."
-  (with-current-buffer buffer
-    (let (deactivate-mark)
-      (erase-buffer)
-      (insert (navbar-serialize item-list)))))
+  (let* ((values (navbar--serialize item-list))
+	 (strings (cl-loop for value in values
+			   when (stringp value)
+			   collect value)))
+    (unless (equal values strings)
+      (setq strings (navbar--expand-glues
+		     values strings (get-buffer-window buffer))))
+    (with-current-buffer buffer
+      (let (deactivate-mark)
+	(erase-buffer)
+	(insert (apply #'concat strings))))))
 
 (defun navbar-update (&optional frame)
   "Update navbar of FRAME."
-  (funcall navbar-display-function
-	   (mapcar #'cdr navbar-item-alist)
-	   (navbar-buffer frame)))
+  (unless frame
+    (setq frame (selected-frame)))
+  (with-selected-frame frame
+    (funcall navbar-display-function
+	     (mapcar #'cdr navbar-item-alist)
+	     (navbar-buffer frame))))
 
 (defun navbar--funcall-with-no-display (function &rest arguments)
   (let ((navbar-display-function #'ignore))
@@ -441,6 +484,7 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
   (navbar-advices-setup)
   (add-hook 'after-make-frame-functions #'navbar-update)
   (add-hook 'after-make-frame-functions #'navbar-make-window)
+  (add-hook 'window-size-change-functions #'navbar-update)
   (mapc #'navbar-make-window (frame-list))
   (navbar-initialize)
   (mapc #'navbar-update (frame-list))
@@ -451,6 +495,7 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
   (navbar-advices-teardown)
   (remove-hook 'after-make-frame-functions #'navbar-update)
   (remove-hook 'after-make-frame-functions #'navbar-make-window)
+  (remove-hook 'window-size-change-functions #'navbar-update)
   (mapc 'navbar-kill-buffer-and-window (frame-list))
   (font-lock-remove-keywords 'emacs-lisp-mode navbar-font-lock-keywords))
 
@@ -461,6 +506,12 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
   (if navbar-mode
       (navbar-setup)
     (navbar-teardown)))
+
+;;; Navbar items
+
+(navbar-define-item navbarx-glue
+  "Navbar item for glue."
+  :value 'glue)
 
 (provide 'navbar)
 ;;; navbar.el ends here
