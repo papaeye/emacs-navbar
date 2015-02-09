@@ -23,8 +23,8 @@ Getting Started
 1. This is the "Hello, world!" example:
    ![](images/hello_world.png)
 
-2. The element of `navbar-item-list` may be a function which returns a property list.  To reflect the change of `navbar-item-list`, run `navbar-sync`:
+2. The element of `navbar-item-list` may be a function which returns a property list.  To reflect the change of `navbar-item-list`, run `navbar-sync`.  `navbarx-time` displays `display-time-string` in the navbar buffer instead of the mode line:
    ![](images/navbarx_time.png)
 
-3. `navbarx-elscreen` displays ElScreen tabs in the navbar buffer:
+3. `navbarx-elscreen` displays ElScreen tabs in the navbar buffer instead of the header line:
    ![](images/navbarx_elscreen.png)

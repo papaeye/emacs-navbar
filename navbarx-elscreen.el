@@ -23,7 +23,15 @@
 
 ;;; Commentary:
 
+;; This navbar item displays tabs of ElScreen in the navbar buffer
+;; instead of the header line.
 ;;
+;; This uses the following faces and variable of ElScreen for the look
+;; and feel of tabs:
+;;
+;; * `elscreen-tab-current-screen-face'
+;; * `elscreen-tab-other-screen-face'
+;; * `elscreen-tab-display-kill-screen'
 
 ;;; Code:
 

@@ -20,7 +20,8 @@
 
 ;;; Commentary:
 
-;;
+;; This navbar item displays `display-time-string' in the navbar buffer
+;; instead of the mode line.
 
 ;;; Code:
 
