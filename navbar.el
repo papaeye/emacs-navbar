@@ -285,13 +285,17 @@ Disabled items are ignored."
 	  (push value result))))))
 
 (defun navbar--expand-glues (values strings window)
-  (let ((max-width (window-body-width window t))
-	(line-width (with-temp-buffer
-		      (let (deactivate-mark)
-			(insert (apply #'concat strings)))
-		      (save-window-excursion
-			(set-window-buffer window (current-buffer))
-			(car (window-text-pixel-size window))))))
+  (let* ((max-width (window-body-width window t))
+	 (line-width (with-temp-buffer
+		       (let (deactivate-mark)
+			 (insert (apply #'concat strings)))
+		       (save-window-excursion
+			 (set-window-buffer window (current-buffer))
+			 ;; Default X-LIMIT seems to return (1- max-width)
+			 ;; if the fringe width is 0 and the text width is
+			 ;; larger than max-width.
+			 (car (window-text-pixel-size window nil nil
+						      (1+ max-width)))))))
     (if (>= line-width max-width)
 	strings
       (let* ((space (- max-width line-width))

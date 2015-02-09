@@ -378,18 +378,34 @@
     (navbar-display '((:value "foo") (:value "bar")) (current-buffer))
     (should (string= (buffer-string) "foo bar"))))
 
-(ert-deftest navbar-display/glue ()
-  (save-window-excursion
-    (set-window-buffer nil (current-buffer))
-    (let ((glue-width (- (window-body-width nil t)
-			 (let (deactivate-mark)
-			   (erase-buffer)
-			   (insert "foo")
-			   (car (window-text-pixel-size))))))
-      (navbar-display '((:value glue) (:value "foo")) (current-buffer))
-      (should (string= (buffer-string) " foo"))
-      (should (equal (get-text-property 0 'display (buffer-string))
-		     `(space :width (,glue-width)))))))
+(ert-deftest navbar-display/glues ()
+  (with-temp-buffer
+    (save-window-excursion
+      (set-window-buffer nil (current-buffer))
+      (let ((glue-width (- (window-body-width nil t)
+			   (let (deactivate-mark)
+			     (insert "foo")
+			     (car (window-text-pixel-size))))))
+	(navbar-display '((:value glue) (:value "foo")) (current-buffer))
+	(should (string= (buffer-string) " foo"))
+	(should (equal (get-text-property 0 'display (buffer-string))
+		       `(space :width (,glue-width))))))))
+
+(ert-deftest navbar-display/too-long-line-should-ignore-glues ()
+  (with-temp-buffer
+    (save-window-excursion
+      (set-window-buffer nil (current-buffer))
+      (let ((line (make-string (1+ (window-body-width)) ?x)))
+	(navbar-display `((:value glue) (:value ,line)) (current-buffer))
+	(should (string= (buffer-string) line))))))
+
+(ert-deftest navbar-display/line-same-as-window-width-should-ignore-glues ()
+  (with-temp-buffer
+    (save-window-excursion
+      (set-window-buffer nil (current-buffer))
+      (let ((line (make-string (window-body-width) ?x)))
+	(navbar-display `((:value glue) (:value ,line)) (current-buffer))
+	(should (string= (buffer-string) line))))))
 
 ;;;; `navbar-initialize'
 
