@@ -43,6 +43,11 @@
   :type 'integer
   :group 'navbar)
 
+(defface navbarx-elscreen-tab-previous-screen
+  '((t :inherit elscreen-tab-other-screen-face))
+  "Face for the previous screen."
+  :group 'navbar)
+
 (defun navbarx-elscreen-screen-command (command)
   (lambda (event)
     (interactive "e")
@@ -90,18 +95,22 @@
 (defun navbarx-elscreen--get ()
   (let ((screen-list (sort (elscreen-get-screen-list) '<))
 	(screen-to-name-alist (elscreen-get-screen-to-name-alist))
-	(current-screen (elscreen-get-current-screen)))
+	(current-screen (elscreen-get-current-screen))
+	(previous-screen (elscreen-get-previous-screen)))
     (mapcar
      (lambda (screen)
        (let ((screen-name (cdr (assq screen screen-to-name-alist)))
-	     (tab-face (if (= screen current-screen)
-			   'elscreen-tab-current-screen-face
-			 'elscreen-tab-other-screen-face)))
+	     (tab-face (cond
+			((= screen current-screen)
+			 'elscreen-tab-current-screen-face)
+			((= screen previous-screen)
+			 'navbarx-elscreen-tab-previous-screen)
+			(t
+			 'elscreen-tab-other-screen-face))))
 	 (list (list (and (memq elscreen-tab-display-kill-screen '(left t))
 			  navbarx-elscreen-kill-screen)
 		     (list (concat
 			    (number-to-string screen)
-			    (elscreen-status-label screen)
 			    navbar-item-padding
 			    screen-name)
 			   :truncate navbarx-elscreen-tab-truncate
