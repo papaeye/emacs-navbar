@@ -50,7 +50,9 @@ It is necessary to run `navbar-sync' to reflect the change of this."
   :group 'navbar)
 
 (defcustom navbar-item-separator
-  (propertize " " 'display '(space :width 0.2))
+  (propertize " "
+	      'display '(space :width 0.2)
+	      'face `(:background ,(face-background 'default)))
   "String to separate navbar items."
   :type 'string
   :group 'navbar)
