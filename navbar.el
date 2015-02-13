@@ -68,7 +68,8 @@ a buffer."
   :type 'function
   :group 'navbar)
 
-(defface navbar nil
+(defface navbar
+  '((t :inherit fringe))
   "Face of the navbar buffer."
   :group 'navbar)
 
