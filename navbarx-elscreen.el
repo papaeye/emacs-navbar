@@ -35,6 +35,7 @@
 
 ;;; Code:
 
+(require 'format-spec)
 (require 'elscreen)
 (require 'navbar)
 
@@ -42,6 +43,16 @@
   "Width to truncate the tab body."
   :type 'integer
   :group 'navbar)
+
+(defcustom navbarx-elscreen-tab-body-format
+  (concat "%s\u00bb" navbar-item-padding "%n")
+  "String to be formatted using `format-spec' and shown in the tab body.
+
+The following characters are replaced:
+%s:	screen number
+%n:	screen name"
+  :type 'string
+  :group 'elscreen)
 
 (defface navbarx-elscreen-tab-previous-screen
   '((t :inherit elscreen-tab-other-screen-face))
@@ -96,7 +107,8 @@
   (let ((screen-list (sort (elscreen-get-screen-list) '<))
 	(screen-to-name-alist (elscreen-get-screen-to-name-alist))
 	(current-screen (elscreen-get-current-screen))
-	(previous-screen (elscreen-get-previous-screen)))
+	(previous-screen (elscreen-get-previous-screen))
+	deactivate-mark)
     (mapcar
      (lambda (screen)
        (let ((screen-name (cdr (assq screen screen-to-name-alist)))
@@ -109,10 +121,9 @@
 			 'elscreen-tab-other-screen-face))))
 	 (list (list (and (memq elscreen-tab-display-kill-screen '(left t))
 			  navbarx-elscreen-kill-screen)
-		     (list (concat
-			    (number-to-string screen)
-			    navbar-item-padding
-			    screen-name)
+		     (list (format-spec navbarx-elscreen-tab-body-format
+					`((?s . ,screen)
+					  (?n . ,screen-name)))
 			   :truncate navbarx-elscreen-tab-truncate
 			   :propertize
 			   (list 'help-echo screen-name
