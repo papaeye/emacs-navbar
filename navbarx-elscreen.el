@@ -111,26 +111,29 @@ The following characters are replaced:
 	deactivate-mark)
     (mapcar
      (lambda (screen)
-       (let ((screen-name (cdr (assq screen screen-to-name-alist)))
-	     (tab-face (cond
-			((= screen current-screen)
-			 'elscreen-tab-current-screen-face)
-			((= screen previous-screen)
-			 'navbarx-elscreen-tab-previous-screen)
-			(t
-			 'elscreen-tab-other-screen-face))))
-	 (list (list (and (memq elscreen-tab-display-kill-screen '(left t))
-			  navbarx-elscreen-kill-screen)
-		     (list (format-spec navbarx-elscreen-tab-body-format
-					`((?s . ,screen)
-					  (?n . ,screen-name)))
-			   :truncate navbarx-elscreen-tab-truncate
-			   :propertize
-			   (list 'help-echo screen-name
-				 'keymap navbarx-elscreen-tab-body-map)
-			   :padding navbar-item-padding)
-		     (and (eq elscreen-tab-display-kill-screen 'right)
-			  navbarx-elscreen-kill-screen))
+       (let* ((screen-name (cdr (assq screen screen-to-name-alist)))
+	      (tab-face (cond
+			 ((= screen current-screen)
+			  'elscreen-tab-current-screen-face)
+			 ((= screen previous-screen)
+			  'navbarx-elscreen-tab-previous-screen)
+			 (t
+			  'elscreen-tab-other-screen-face)))
+	      (tab-body (list (format-spec navbarx-elscreen-tab-body-format
+					   `((?s . ,screen)
+					     (?n . ,screen-name)))
+			      :truncate navbarx-elscreen-tab-truncate
+			      :propertize
+			      (list 'help-echo screen-name
+				    'keymap navbarx-elscreen-tab-body-map)
+			      :padding navbar-item-padding)))
+	 (list (cond
+		((not elscreen-tab-display-kill-screen)
+		 (list tab-body))
+		((eq elscreen-tab-display-kill-screen 'right)
+		 (list tab-body navbarx-elscreen-kill-screen))
+		(t
+		 (list navbarx-elscreen-kill-screen tab-body)))
 	       :propertize (list 'face tab-face
 				 'pointer 'hand
 				 'navbarx-elscreen-screen screen))))
