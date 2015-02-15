@@ -103,7 +103,7 @@ DOC is a doc string for function ITEM.
 	If the symbol value is nil, the navbar item is not displayed.
 :get	VALUE should be a function which returns the current value of
 	the navbar item.
-	It should return symbol `unchanged' if the value is not updated.
+	It should return symbol `:unchanged' if the value is not updated.
 :initialize
 	VALUE should be a function which is run by `navbar-initialize'
 	if ENABLE is non-nil at that time.
@@ -206,7 +206,7 @@ DOC is a doc string for function ITEM.
 If optional FORCE argument is non-nil, it is passed to :get function.
 
 Return non-nil if the item has :get property and the return value of
-the :get function is neither symbol `unchanged' nor existing value."
+the :get function is neither symbol `:unchanged' nor existing value."
   (let* ((item (cdr (assq key navbar-item-alist)))
 	 (getter (plist-get item :get))
 	 old-value new-value)
@@ -216,7 +216,7 @@ the :get function is neither symbol `unchanged' nor existing value."
 			   (if force
 			       (funcall getter force)
 			     (funcall getter))))
-      (unless (or (eq new-value 'unchanged)
+      (unless (or (eq new-value :unchanged)
 		  (equal-including-properties new-value old-value))
 	(plist-put item :value new-value)))))
 

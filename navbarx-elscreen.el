@@ -101,7 +101,7 @@ The following characters are replaced:
 	   (or (elscreen-screen-modified-p 'navbarx-elscreen-get)
 	       force))
       (navbarx-elscreen--get)
-    'unchanged))
+    :unchanged))
 
 (defun navbarx-elscreen--get ()
   (let ((screen-list (sort (elscreen-get-screen-list) '<))
@@ -154,9 +154,9 @@ The following characters are replaced:
   ;; to `elscreen-screen-update-hook' by `navbarx-elscreen-on',
   ;; thus it is necessary to run `navbarx-elscreen-update' here.
   ;;
-  ;; Moreover, successive call of `navbarx-elscreen-get' returns `unchanged'
-  ;; because of `elscreen-screen-modified-p', thus it is necessary to
-  ;; get ElScreen tabs forcibly.
+  ;; Moreover, successive call of `navbarx-elscreen-get' returns
+  ;; `:unchanged' because of `elscreen-screen-modified-p',
+  ;; thus it is necessary to get ElScreen tabs forcibly.
   (navbarx-elscreen-update 'force))
 
 (defun navbarx-elscreen-off ()
