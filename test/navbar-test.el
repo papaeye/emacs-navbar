@@ -230,7 +230,7 @@
 
 (ert-deftest navbar-item-update/enabled--got-unchaned--not-put-it ()
   (navbar-test-save-item-list
-    (setq navbar-item-alist '((key :get (lambda () :unchanged)
+    (setq navbar-item-alist '((key :get (lambda () 'unchanged)
 				   :value "old-value")))
     (should-not (navbar-item-update 'key))
     (should (string= (navbar-item-value-get 'key) "old-value"))))
@@ -711,10 +711,10 @@
 	(should (navbar-item-value-get 'navbarx-elscreen))
 	(should (navbar-item-enabled-p 'navbarx-elscreen))
 	;; Successive call doesn't update navbar buffer
-	(should (eq (navbarx-elscreen-get) :unchanged))
+	(should (eq (navbarx-elscreen-get) 'unchanged))
 	(should-not (navbarx-elscreen-update))
 	;; But force get should work
-	(should-not (eq (navbarx-elscreen-get 'force) :unchanged)))
+	(should-not (eq (navbarx-elscreen-get 'force) 'unchanged)))
       (should (memq 'elscreen-tab-update elscreen-screen-update-hook))
       (should-not (memq 'navbarx-elscreen-update
 			elscreen-screen-update-hook))
