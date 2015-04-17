@@ -1,5 +1,6 @@
 env:
   - EMACS=emacs EVM_EMACS=emacs-24.4-bin
+  - EMACS=emacs EVM_EMACS=emacs-24.5-bin
   - EMACS=emacs-snapshot
 before_install:
   - if [ -n "$EVM_EMACS" ]; then
