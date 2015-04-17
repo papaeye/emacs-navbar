@@ -18,7 +18,7 @@ before_install:
   - git clone https://github.com/cask/cask.git $HOME/.cask
   - export PATH=$HOME/.cask/bin:$PATH
 install:
-  - cask install
+  - cask install --verbose --debug
   - cask package
 script:
   - cask exec $EMACS --version
