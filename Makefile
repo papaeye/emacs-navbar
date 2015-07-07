@@ -34,4 +34,4 @@ test-interactive: compile
 test-all: test test-interactive
 
 test/elscreen.el:
-	curl -s https://raw.githubusercontent.com/papaeye/elscreen/develop/elscreen.el > $@
+	curl -sSL https://github.com/emacs-jp/elscreen/raw/master/elscreen.el > $@
