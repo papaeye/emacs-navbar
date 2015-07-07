@@ -18,5 +18,7 @@ before_install:
     fi
   - git clone --depth=1 https://github.com/cask/cask.git $HOME/.cask
   - export PATH=$HOME/.cask/bin:$PATH
+install:
+  - cask install
 script:
   - make test-package

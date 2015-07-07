@@ -42,7 +42,6 @@ test/elscreen.el:
 
 .PHONY: package
 package:
-	$(CASK) install
 	$(CASK) package
 
 .PHONY: test-package
