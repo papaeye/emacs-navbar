@@ -45,8 +45,8 @@ package:
 	$(CASK) install
 	$(CASK) package
 
-.PHONY: travis
-test-travis: package
+.PHONY: test-package
+test-package: package
 	$(CASK) exec $(EMACS) --batch -f package-initialize --eval '(package-install-file (car (file-expand-wildcards "$(shell pwd)/dist/navbar-*.tar")))'
 	$(CASK) exec $(EMACS) --batch -f package-initialize -l test/navbar-test.el -f ert-run-tests-batch-and-exit
 	$(CASK) exec $(EMACS) --batch -f package-initialize -l undercover --eval '(undercover "navbar.el")' -l navbar.el -l test/navbar-test.el -f ert-run-tests-batch-and-exit

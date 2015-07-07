@@ -19,4 +19,4 @@ before_install:
   - git clone --depth=1 https://github.com/cask/cask.git $HOME/.cask
   - export PATH=$HOME/.cask/bin:$PATH
 script:
-  - make test-travis
+  - make test-package
