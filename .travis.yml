@@ -6,7 +6,7 @@ before_install:
   - if [ -n "$EVM_EMACS" ]; then
       sudo mkdir /usr/local/evm &&
       sudo chown travis:travis /usr/local/evm &&
-      git clone https://github.com/rejeep/evm.git $HOME/.evm &&
+      git clone --depth=1 https://github.com/rejeep/evm.git $HOME/.evm &&
       export PATH=$HOME/.evm/bin:$PATH &&
       evm install $EVM_EMACS &&
       evm use $EVM_EMACS;
@@ -16,7 +16,7 @@ before_install:
       sudo apt-get -qq -f install &&
       sudo apt-get -qq install $EMACS;
     fi
-  - git clone https://github.com/cask/cask.git $HOME/.cask
+  - git clone --depth=1 https://github.com/cask/cask.git $HOME/.cask
   - export PATH=$HOME/.cask/bin:$PATH
 install:
   - cask install --verbose --debug
