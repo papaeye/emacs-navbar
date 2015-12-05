@@ -294,11 +294,8 @@ Disabled items are ignored."
 			 (insert (apply #'concat strings)))
 		       (save-window-excursion
 			 (set-window-buffer window (current-buffer))
-			 ;; Default X-LIMIT seems to return (1- max-width)
-			 ;; if the fringe width is 0 and the text width is
-			 ;; larger than max-width.
 			 (car (window-text-pixel-size window nil nil
-						      (1+ max-width)))))))
+						      max-width))))))
     (if (>= line-width max-width)
 	strings
       (let* ((space (- max-width line-width))
