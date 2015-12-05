@@ -515,6 +515,18 @@ Also, this runs :deinitialize functions without updating the navbar buffer."
       (navbar-setup)
     (navbar-teardown)))
 
+;;; Workarounds
+
+(defun navbar-revive-workaround ()
+  (with-eval-after-load 'revive
+    (defun revive:window-list ()
+      (window-list nil 'no-minibuf (navbar-window)))
+    (defun construct-window-configuration (edgelist)
+      (delete-other-windows)
+      (revive:restore-winconf
+       0 1 (revive:screen-width) (1- (revive:screen-height))
+       edgelist))))
+
 ;;; Navbar items
 
 (navbar-define-item navbarx-glue
